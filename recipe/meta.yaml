@@ -13,7 +13,7 @@ build:
 
 requirements:
   build:
-    - setuptools
+    - setuptools 23.*
     - cython
     - python
     - six
