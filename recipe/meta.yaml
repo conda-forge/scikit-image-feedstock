@@ -16,19 +16,19 @@ requirements:
     - setuptools 23.*
     - cython
     - python
-    - six
+    - six >=1.7.3
     - numpy x.x
-    - scipy
+    - scipy >=0.10.0
   run:
     - python
-    - six
+    - six >=1.7.3
     - numpy x.x
-    - scipy
-    - matplotlib
-    - networkx
-    - pillow
-    - dask
-    - pywavelets
+    - scipy >=0.10.0
+    - matplotlib >=1.3.1
+    - networkx >=1.8
+    - pillow >=2.1.0
+    - dask >=0.5.0
+    - pywavelets >=0.4.0
 
 test:
   imports:
