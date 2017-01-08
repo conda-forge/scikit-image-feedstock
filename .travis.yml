@@ -1,7 +1,10 @@
 # This file was generated automatically from conda-smithy. To update this configuration,
-# update the conda-forge.yaml and/or the recipe/meta.yaml.
+# update the conda-forge.yml and/or the recipe/meta.yaml.
 
-language: objective-c
+language: generic
+
+os: osx
+osx_image: beta-xcode6.1
 
 env:
   matrix:
@@ -12,6 +15,8 @@ env:
     - CONDA_NPY=111  CONDA_PY=34
     - CONDA_NPY=110  CONDA_PY=35
     - CONDA_NPY=111  CONDA_PY=35
+    - CONDA_NPY=110  CONDA_PY=36
+    - CONDA_NPY=111  CONDA_PY=36
   global:
     # The BINSTAR_TOKEN secure variable. This is defined canonically in conda-forge.yml.
     - secure: "Pjd+YubuHEMRGVWRYZkcV0rGF5i1mOBLaADudjrFyICBmcIHAh302mVWVYCkTFlyD4OonJ5g52UBbbrR7lQ8rXQsbRoPE9WTvZUeBOgpdsF0QfHaHnncY/0X5Ne3dDnWB8FaX768AveX6YvfxMq5LvQrUeIOirUCGN26Sjmoz81PSI6ubtWqSnH9gKgs/e8i7o5x0QrmJgpAvGWV0DyfFBcjsqtqqdQ//FnEla6ETM6iXkZgbuGasCWIhwnzgugMgY8juX1u0W7eAfu8gF2tquFFElV/zL6K/KfvmHRubPZo+HplTBEsBBM2bNCo5YDqS2GM9gZGyM34eaijufJ9OSSfB2x3YGPXfhTCcU4hzWUTESCQLA01ySjJjptjhDvpVSVutuWqXSU6G9TlbJqT1unapBy1o/SC6uXipIZS3LKBx0GSNlBObYyF47nVKvr25Dh2u2NgcPGg3YqMbQpmSzdZ8DyCK0tyKdMoYd4gPTdFMBSGSvmu4oZ7NilbWs2faokY2PFvFrM7kfKKwnk2pwX9QzYwtbRg3yVDBoCZXkim5h6AQZYBDXbQjV3lJaRWzwGdKjuzUXdzwCp2fCGKBPY/SHfQqPitz9BMi2w5ISNlfVoiklDCqIjS2PKQiZOu0TcEzLVpJtuWWE2WVmMaS8XRaT0upyOY9/TthZaCE0k="
@@ -25,22 +30,18 @@ before_install:
 
 install:
     - |
-      MINICONDA_URL="http://repo.continuum.io/miniconda"
+      MINICONDA_URL="https://repo.continuum.io/miniconda"
       MINICONDA_FILE="Miniconda3-latest-MacOSX-x86_64.sh"
-      curl -O "${MINICONDA_URL}/${MINICONDA_FILE}"
+      curl -L -O "${MINICONDA_URL}/${MINICONDA_FILE}"
       bash $MINICONDA_FILE -b
 
-      export PATH=/Users/travis/miniconda3/bin:$PATH
-
-      conda config --set show_channel_urls true
-      conda update --yes conda
-      conda install --yes conda-build=1.20.0 jinja2 anaconda-client
+      source /Users/travis/miniconda3/bin/activate root
       conda config --add channels conda-forge
-      
+      conda config --set show_channel_urls true
+      conda install --yes --quiet conda-forge-build-setup
+      source run_conda_forge_build_setup
 
 script:
   - conda build ./recipe
 
-after_success:
-
-  - ./ci_support/upload_or_check_non_existence.py ./recipe conda-forge --channel=main
+  - upload_or_check_non_existence ./recipe conda-forge --channel=main
