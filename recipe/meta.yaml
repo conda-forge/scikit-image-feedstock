@@ -15,19 +15,20 @@ build:
 requirements:
   build:
     - setuptools
-    - cython
+    - cython >=0.23
     - python
-    - six
+    - six >=1.4
     - numpy x.x
-    - scipy
+    - scipy >=0.9
   run:
     - python
-    - six
+    - six >=1.4
     - numpy x.x
-    - scipy
-    - matplotlib
-    - networkx
-    - pillow
+    - scipy >=0.9
+    - matplotlib >=1.1
+    - networkx >=1.8
+    - pillow >=1.7.8
+    - dask >=0.5
 
 test:
   imports:
