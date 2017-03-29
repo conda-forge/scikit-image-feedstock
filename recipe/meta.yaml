@@ -30,7 +30,7 @@ requirements:
     - networkx >=1.8
     - pillow >=2.1.0
     - dask >=0.5
-    - PyWavelets >=0.4.0
+    - pywavelets >=0.4.0
     - imageio >=2.1.0
 
 test:

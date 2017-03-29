@@ -14,9 +14,9 @@ Summary: Image processing routines for SciPy
 Current build status
 ====================
 
-Linux: [![Circle CI](https://circleci.com/gh/conda-forge/scikit-image-feedstock.svg?style=shield)](https://circleci.com/gh/conda-forge/scikit-image-feedstock)
-OSX: [![TravisCI](https://travis-ci.org/conda-forge/scikit-image-feedstock.svg?branch=master)](https://travis-ci.org/conda-forge/scikit-image-feedstock)
-Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/conda-forge/scikit-image-feedstock?svg=True)](https://ci.appveyor.com/project/conda-forge/scikit-image-feedstock/branch/master)
+Linux: [![Circle CI](https://circleci.com/gh/conda-forge/skimage-feedstock.svg?style=shield)](https://circleci.com/gh/conda-forge/skimage-feedstock)
+OSX: [![TravisCI](https://travis-ci.org/conda-forge/skimage-feedstock.svg?branch=master)](https://travis-ci.org/conda-forge/skimage-feedstock)
+Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/conda-forge/skimage-feedstock?svg=True)](https://ci.appveyor.com/project/conda-forge/skimage-feedstock/branch/master)
 
 Current release info
 ====================
