@@ -5,29 +5,33 @@ package:
   version: {{ version }}
 
 source:
-  fn: scikit-image-{{ version }}.tar.gz
   url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
   sha256: 77a636bdc08c7668a15951894548c527f0c8c5c2abc86cb850de17551af51e3e
 
 build:
-  number: 0
+  number: 1
+  script:
+    - export LDFLAGS="-headerpad_max_install_names"  # [osx]
+    - python -m pip install --no-deps .
+  entry_points:
+    - skivi = skimage.scripts.skivi:main
 
 requirements:
   build:
-    - setuptools
-    - cython >=0.23
     - python
+    - pip
+    - cython >=0.23
     - six >=1.7.3
-    - numpy x.x
-    - numpy >=1.11
+    - numpy 1.11.*  # [not (win32 and py36)]
+    - numpy 1.12.*  # [win32 and py36]
     - scipy >=0.17
     - numpydoc >=0.6
     - msinttypes  # [win and py<35]
   run:
     - python
     - six >=1.7.3
-    - numpy x.x
-    - numpy >=1.11
+    - numpy >=1.11  # [not (win32 and py36)]
+    - numpy >=1.12  # [win32 and py36]
     - scipy >=0.17
     - matplotlib >=1.3.1
     - networkx >=1.8
@@ -39,12 +43,15 @@ requirements:
 test:
   imports:
     - skimage
+  commands:
+    - conda inspect linkages -p $PREFIX scikit-image  # [not win]
+    - conda inspect objects -p $PREFIX scikit-image  # [osx]
 
 about:
   home: http://scikit-image.org/
   license: BSD 3-Clause
   license_file: LICENSE.txt
-  summary: Image processing routines for SciPy
+  summary: 'Image processing routines for SciPy.'
 
 extra:
   recipe-maintainers:

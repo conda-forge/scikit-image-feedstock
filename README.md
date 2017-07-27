@@ -7,7 +7,7 @@ Package license: BSD 3-Clause
 
 Feedstock license: BSD 3-Clause
 
-Summary: Image processing routines for SciPy
+Summary: Image processing routines for SciPy.
 
 
 
