@@ -37,7 +37,7 @@ requirements:
     - networkx >=1.8
     - pillow >=2.1.0
     - dask-core >=0.15
-    - toolz >=0.8.2
+    - toolz >=0.7.4
     - pywavelets >=0.4.0
     - imageio >=2.1.0
 
