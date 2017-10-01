@@ -42,11 +42,14 @@ requirements:
     - imageio >=2.1.0
 
 test:
+  requires:
+    - pytest >=3,<4
   imports:
     - skimage
   commands:
     - conda inspect linkages -p $PREFIX scikit-image  # [not win]
     - conda inspect objects -p $PREFIX scikit-image  # [osx]
+    - PYTHONPATH=. pytest --doctest-modules skimage
 
 about:
   home: http://scikit-image.org/
