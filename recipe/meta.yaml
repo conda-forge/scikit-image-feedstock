@@ -49,7 +49,7 @@ test:
   commands:
     - conda inspect linkages -p $PREFIX scikit-image  # [not win]
     - conda inspect objects -p $PREFIX scikit-image  # [osx]
-    - PYTHONPATH=. pytest --doctest-modules skimage
+    - pytest --doctest-modules --pyargs skimage
 
 about:
   home: http://scikit-image.org/
