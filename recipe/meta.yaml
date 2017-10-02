@@ -43,13 +43,13 @@ requirements:
 
 test:
   requires:
-    - pytest >=3,<4
+    - nose
   imports:
     - skimage
   commands:
     - conda inspect linkages -p $PREFIX scikit-image  # [not win]
     - conda inspect objects -p $PREFIX scikit-image  # [osx]
-    - pytest --doctest-modules --pyargs skimage
+    - nosetests --with-doctest skimage
 
 about:
   home: http://scikit-image.org/
