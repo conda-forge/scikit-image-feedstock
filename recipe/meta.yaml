@@ -49,7 +49,7 @@ test:
   commands:
     - conda inspect linkages -p $PREFIX scikit-image  # [not win]
     - conda inspect objects -p $PREFIX scikit-image  # [osx]
-    - nosetests --stop --no-capture --with-doctest skimage
+    - nosetests --stop --nocapture --with-doctest skimage
 
 about:
   home: http://scikit-image.org/
