@@ -43,6 +43,7 @@ requirements:
 
 test:
   requires:
+    - pillow <4.2
     - nose
   imports:
     - skimage
