@@ -51,7 +51,7 @@ test:
   commands:
     - conda inspect linkages -p $PREFIX scikit-image  # [not win]
     - conda inspect objects -p $PREFIX scikit-image  # [osx]
-    - MPLBACKEND=agg nosetests --stop --nocapture --with-doctest skimage
+    - QT_QPA_PLATFORM=offscreen MPLBACKEND=agg nosetests --stop --nocapture --with-doctest skimage
 
 about:
   home: http://scikit-image.org/
