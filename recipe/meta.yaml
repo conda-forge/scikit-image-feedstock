@@ -51,7 +51,14 @@ test:
   commands:
     - conda inspect linkages -p $PREFIX scikit-image  # [not win]
     - conda inspect objects -p $PREFIX scikit-image  # [osx]
-    - QT_QPA_PLATFORM=offscreen MPLBACKEND=agg nosetests --stop --nocapture --with-doctest skimage
+    - set MPLCONFIGDIR .  # [win]
+    - set QT_QPA_PLATFORM offscreen  # [win]
+    - set MPLBACKEND Qt4agg  # [win]
+    - MPL_CONFIG_DIR=.  # [not win]
+    - QT_QPA_PLATFORM=offscreen  # [not win]
+    - MPLBACKEND=Qt4agg  # [not win]
+    - echo 'backend.qt : PyQt4' > matplotlibrc
+    - nosetests --stop --nocapture --with-doctest skimage
 
 about:
   home: http://scikit-image.org/
