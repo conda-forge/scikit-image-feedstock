@@ -13,6 +13,7 @@ build:
   script:
     - export LDFLAGS="-headerpad_max_install_names"  # [osx]
     - rm -f skimage/run-hessian.py
+    - rm -rf skimage/viewer/tests  # [win]
     - python -m pip install --no-deps .
   entry_points:
     - skivi = skimage.scripts.skivi:main
@@ -51,14 +52,6 @@ test:
   commands:
     - conda inspect linkages -p $PREFIX scikit-image  # [not win]
     - conda inspect objects -p $PREFIX scikit-image  # [osx]
-    - set MPLCONFIGDIR .  # [win]
-    - set QT_QPA_PLATFORM offscreen  # [win]
-    - set MPLBACKEND Qt4agg  # [win]
-    - MPL_CONFIG_DIR=.  # [not win]
-    - QT_QPA_PLATFORM=offscreen  # [not win]
-    - MPLBACKEND=Qt4agg  # [not win]
-    - echo 'backend.qt : PyQt4' > matplotlibrc
-    - nosetests --stop --nocapture --with-doctest skimage
 
 about:
   home: http://scikit-image.org/
