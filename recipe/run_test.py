@@ -1,10 +1,8 @@
-import os
+import sys
 import matplotlib
 
-os.environ['QT_QPA_PLATFORM'] = 'offscreen'
-matplotlib.use('Qt4agg')
-matplotlib.rcParams['backend.qt4'] = 'PyQt4'
+matplotlib.use('Agg')
 
 import skimage
 
-skimage.test()
+sys.exit(skimage.test())
