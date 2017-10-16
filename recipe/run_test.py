@@ -5,4 +5,4 @@ matplotlib.use('Agg')
 
 import skimage
 
-sys.exit(skimage.test())
+sys.exit(skimage.test(verbose=True))
