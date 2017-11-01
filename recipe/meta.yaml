@@ -9,10 +9,12 @@ source:
   sha256: 77a636bdc08c7668a15951894548c527f0c8c5c2abc86cb850de17551af51e3e
 
 build:
-  number: 2
+  number: 3
   script:
     - export LDFLAGS="-headerpad_max_install_names"  # [osx]
-    - python -m pip install --no-deps .
+    - rm -f skimage/run-hessian.py
+    - rm -rf skimage/viewer/tests  # we don't depend on Qt
+    - python setup.py install --single-version-externally-managed --record record.txt
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
@@ -34,7 +36,7 @@ requirements:
     - numpy >=1.12  # [win32 and py36]
     - scipy >=0.17
     - matplotlib >=1.3.1
-    - networkx >=1.8
+    - networkx >=1.8,<2.0
     - pillow >=2.1.0
     - dask-core >=0.15
     - toolz >=0.7.4
@@ -42,6 +44,9 @@ requirements:
     - imageio >=2.1.0
 
 test:
+  requires:
+    - pillow <4.2
+    - nose
   imports:
     - skimage
   commands:
