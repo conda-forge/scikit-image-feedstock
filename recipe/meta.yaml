@@ -9,7 +9,7 @@ source:
   sha256: 325f75eb80fbc5371136e37f323445309ca9f65b6c6f718d0d0e2189e5de1224
 
 build:
-  number: 0
+  number: 1
   script:
     - export LDFLAGS="-headerpad_max_install_names"  # [osx]
     - rm -f skimage/run-hessian.py
