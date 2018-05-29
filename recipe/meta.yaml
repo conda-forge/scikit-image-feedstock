@@ -1,4 +1,4 @@
-{% set version = "0.13.1" %}
+{% set version = "0.14.0" %}
 
 package:
   name: scikit-image
@@ -6,7 +6,7 @@ package:
 
 source:
   url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
-  sha256: 353879ddf7483f4621872c49cd9bc8a0ad1c3154ac0670b70799922f4cb899e8
+  sha256: 325f75eb80fbc5371136e37f323445309ca9f65b6c6f718d0d0e2189e5de1224
 
 build:
   number: 0
