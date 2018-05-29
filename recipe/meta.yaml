@@ -41,7 +41,7 @@ requirements:
     - dask-core >=0.15
     - toolz >=0.7.4
     - pywavelets >=0.4.0
-    - dask[array] >=0.9.0
+    - dask-core >=0.9.0
     - cloudpickle >=0.2.1
     - imageio >=2.1.0
 
