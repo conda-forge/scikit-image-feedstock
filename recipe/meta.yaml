@@ -9,31 +9,31 @@ source:
   sha256: 325f75eb80fbc5371136e37f323445309ca9f65b6c6f718d0d0e2189e5de1224
 
 build:
-  number: 0
+  number: 1
   script:
-    - export LDFLAGS="-headerpad_max_install_names"  # [osx]
     - rm -f skimage/run-hessian.py
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
-    - python setup.py install --single-version-externally-managed --record record.txt
+    - python -m pip install --no-deps --ignore-installed .
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
 requirements:
   build:
+    - {{ compiler("c") }}
+    - {{ compiler("cxx") }}
+  host:
     - python
     - pip
     - cython >=0.23
     - six >=1.7.3
-    - numpy 1.11.*  # [not (win32 and py36)]
-    - numpy 1.12.*  # [win32 and py36]
+    - numpy 1.11.3  # [not (win32 and py36)]
     - scipy >=0.17
     - numpydoc >=0.6
     - msinttypes  # [win and py<35]
   run:
     - python
     - six >=1.7.3
-    - numpy >=1.11  # [not (win32 and py36)]
-    - numpy >=1.12  # [win32 and py36]
+    - {{ pin_compatible('numpy') }}
     - scipy >=0.17
     - matplotlib >=2.0.0
     - networkx >=1.8
@@ -51,9 +51,6 @@ test:
     - pytest-cov
   imports:
     - skimage
-  commands:
-    - conda inspect linkages -p $PREFIX scikit-image  # [not win]
-    - conda inspect objects -p $PREFIX scikit-image  # [osx]
 
 about:
   home: http://scikit-image.org/
