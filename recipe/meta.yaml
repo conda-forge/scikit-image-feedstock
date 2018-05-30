@@ -13,7 +13,7 @@ build:
   script:
     - rm -f skimage/run-hessian.py
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
-    - python setup.py install --single-version-externally-managed --record record.txt
+    - python -m pip install --no-deps --ignore-installed .
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
