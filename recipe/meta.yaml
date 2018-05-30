@@ -27,16 +27,14 @@ requirements:
     - pip
     - cython >=0.23
     - six >=1.7.3
-    - numpy 1.11.*  # [not (win32 and py36)]
-    - numpy 1.12.*  # [win32 and py36]
+    - numpy 1.11.3  # [not (win32 and py36)]
     - scipy >=0.17
     - numpydoc >=0.6
     - msinttypes  # [win and py<35]
   run:
     - python
     - six >=1.7.3
-    - numpy >=1.11  # [not (win32 and py36)]
-    - numpy >=1.12  # [win32 and py36]
+    - {{ pin_compatible('numpy') }}
     - scipy >=0.17
     - matplotlib >=2.0.0
     - networkx >=1.8
