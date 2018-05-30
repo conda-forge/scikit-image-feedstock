@@ -11,7 +11,6 @@ source:
 build:
   number: 0
   script:
-    - export LDFLAGS="-headerpad_max_install_names"  # [osx]
     - rm -f skimage/run-hessian.py
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
     - python setup.py install --single-version-externally-managed --record record.txt
