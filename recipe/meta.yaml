@@ -51,9 +51,6 @@ test:
     - pytest-cov
   imports:
     - skimage
-  commands:
-    - conda inspect linkages -p $PREFIX scikit-image  # [not win]
-    - conda inspect objects -p $PREFIX scikit-image  # [osx]
 
 about:
   home: http://scikit-image.org/
