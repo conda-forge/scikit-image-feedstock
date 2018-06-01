@@ -26,7 +26,7 @@ requirements:
     - pip
     - cython >=0.23
     - six >=1.7.3
-    - numpy 1.11.3  # [not (win32 and py36)]
+    - numpy 1.11.3
     - scipy >=0.17
     - numpydoc >=0.6
     - msinttypes  # [win and py<35]
