@@ -50,7 +50,9 @@ test:
   imports:
     - skimage
   commands:
-    - MPLBACKEND=Agg pytest --pyargs skimage
+    - setx MPLBACKEND "Agg"  # [win]
+    - export MPLBACKEND=Agg  # [not win]
+    - pytest --pyargs skimage
 
 about:
   home: http://scikit-image.org/
