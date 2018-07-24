@@ -11,6 +11,7 @@ source:
 build:
   number: 1
   script:
+    - rm -rf skimage/viewer/tests  # we don't depend on Qt
     - python -m pip install --no-deps --ignore-installed .
   entry_points:
     - skivi = skimage.scripts.skivi:main
@@ -51,7 +52,8 @@ test:
     - skimage
   commands:
     - setx MPLBACKEND "Agg"  # [win]
-    - export MPLBACKEND=Agg  # [not win]
+    - export MPLBACKEND=Agg  # [linux]
+    - export MPLBACKEND=Template  # [osx]
     - pytest --pyargs skimage
 
 about:
