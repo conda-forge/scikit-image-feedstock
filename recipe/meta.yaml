@@ -52,8 +52,7 @@ test:
     - skimage
   commands:
     - setx MPLBACKEND "Agg"  # [win]
-    - export MPLBACKEND=Agg  # [linux]
-    - export MPLBACKEND=Template  # [osx]
+    - export MPLBACKEND=Agg  # [unix]
     - pytest --pyargs skimage
 
 about:
