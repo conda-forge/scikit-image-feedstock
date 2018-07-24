@@ -1,0 +1,601 @@
+diff --git a/.travis.yml b/.travis.yml
+index f04ee7959c..3e3991783f 100644
+--- a/.travis.yml
++++ b/.travis.yml
+@@ -38,16 +38,16 @@ matrix:
+   include:
+     - os: linux
+       python: 3.5
+-      env: OPTIONAL_DEPS=1 WITH_PYSIDE=1 BUILD_DOCS=1
++      env: MINIMUM_REQUIREMENTS=1 OPTIONAL_DEPS=0 BUILD_DOCS=0
+     - os: linux
+       python: 3.5
+-      env: QT=PyQt5 WITH_PYAMG=1 MINIMUM_REQUIREMENTS=1
++      env: QT=PyQt5 WITH_PYAMG=1
+     - os: linux
+       python: 3.6
+-      env: QT=PyQt5 WITH_PYAMG=1 OPTIONAL_DEPS=1 BUILD_DOCS=1 DEPLOY_DOCS=1
++      env: QT=PyQt5 WITH_PYAMG=1 DEPLOY_DOCS=1
+     - os: linux
+       python: 3.6
+-      env: QT=PyQt5 WITH_PYAMG=1 OPTIONAL_DEPS=1 PIP_FLAGS="--pre"
++      env: QT=PyQt5 WITH_PYAMG=1 PIP_FLAGS="--pre"
+     - os: osx
+       osx_image: xcode9
+       language: objective-c
+@@ -65,11 +65,12 @@ before_install:
+     - export PATH=/usr/lib/ccache:${PATH}
+     - source tools/travis/before_install.sh
+     - which python; python --version
+-    - tools/build_versions.py
+     - tools/check_sdist.py
+ 
+ install:
+-    - python setup.py develop
++    - python setup.py develop --no-deps
++    # Only install requirements after the build process
++    - pip install --retries 3 -q $PIP_FLAGS -r requirements.txt
+     # Matplotlib settings - do not show figures during doc examples
+     - |
+       if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+@@ -81,8 +82,8 @@ install:
+     - touch ${MPL_DIR}/matplotlibrc
+     # Install most of the optional packages
+     - |
+-      if [[ "${OPTIONAL_DEPS}" == "1" ]]; then
+-        pip install --retries 3 -q -r ./requirements/optional.txt $WHEELHOUSE
++      if [[ "${OPTIONAL_DEPS}" != "0" ]]; then
++        pip install --retries 3 -q -r ./requirements/optional.txt
+       fi
+     - |
+       if [[ "${WITH_PYAMG}" == "1" ]]; then
+diff --git a/MANIFEST.in b/MANIFEST.in
+index 6e7080b19f..e3a4000908 100644
+--- a/MANIFEST.in
++++ b/MANIFEST.in
+@@ -7,6 +7,7 @@ recursive-include requirements *.txt
+ include requirements/README.md
+ include Makefile
+ include skimage/scripts/skivi
++include tools/skimage_build_helpers.py
+ recursive-include skimage *.pyx *.pxd *.pxi *.py *.c *.h *.ini *.md5 *.npy *.txt *.in *.cpp *.md
+ recursive-include skimage/data *
+ 
+diff --git a/requirements/build.txt b/requirements/build.txt
+index b71b135a13..4293b509ba 100644
+--- a/requirements/build.txt
++++ b/requirements/build.txt
+@@ -1,2 +1,4 @@
+-Cython>=0.23
++Cython>=0.23.4
+ wheel
++numpydoc>=0.6
++numpy>=1.11
+diff --git a/requirements/optional.txt b/requirements/optional.txt
+index ad4f25676f..3226882948 100644
+--- a/requirements/optional.txt
++++ b/requirements/optional.txt
+@@ -1,4 +1,3 @@
+-PySide; python_version <= '3.4'
+ imread
+ SimpleITK
+ astropy
+diff --git a/requirements/test.txt b/requirements/test.txt
+index 9955deccd9..ddc898d2e8 100644
+--- a/requirements/test.txt
++++ b/requirements/test.txt
+@@ -1,2 +1,4 @@
+ pytest
+ pytest-cov
++flake8
++codecov
+diff --git a/setup.py b/setup.py
+index 74115d5d60..464e74bcdd 100644
+--- a/setup.py
++++ b/setup.py
+@@ -47,7 +47,6 @@
+ # the numpy distutils extensions that are used by scikit-image to recursively
+ # build the compiled extensions in sub-packages is based on the Python import
+ # machinery.
+-builtins.__SKIMAGE_SETUP__ = True
+ 
+ 
+ with open('skimage/__init__.py') as fid:
+@@ -88,14 +87,6 @@ def configuration(parent_package='', top_path=None):
+     try:
+         from numpy.distutils.core import setup
+         extra = {'configuration': configuration}
+-        # Do not try and upgrade larger dependencies
+-        for lib in ['scipy', 'numpy', 'matplotlib', 'pillow']:
+-            try:
+-                __import__(lib)
+-                INSTALL_REQUIRES = [i for i in INSTALL_REQUIRES
+-                                    if lib not in i]
+-            except ImportError:
+-                pass
+     except ImportError:
+         if len(sys.argv) >= 2 and ('--help' in sys.argv[1:] or
+                                    sys.argv[1] in ('--help-commands',
+diff --git a/skimage/__init__.py b/skimage/__init__.py
+index ac7c24c32b..54d90704fd 100644
+--- a/skimage/__init__.py
++++ b/skimage/__init__.py
+@@ -65,7 +65,7 @@
+ pkg_dir = osp.abspath(osp.dirname(__file__))
+ data_dir = osp.join(pkg_dir, 'data')
+ 
+-__version__ = '0.15dev'
++__version__ = '0.15.dev0'
+ 
+ 
+ if sys.version_info < (3,):
+@@ -130,52 +130,7 @@ def _test(doctest=False, verbose=False):
+ doctest_verbose = functools.partial(test, doctest=True, verbose=True)
+ doctest_verbose.__doc__ = doctest.__doc__
+ 
+-
+-# Logic for checking for improper install and importing while in the source
+-# tree when package has not been installed inplace.
+-# Code adapted from scikit-learn's __check_build module.
+-_INPLACE_MSG = """
+-It appears that you are importing a local scikit-image source tree. For
+-this, you need to have an inplace install. Maybe you are in the source
+-directory and you need to try from another location."""
+-
+-_STANDARD_MSG = """
+-Your install of scikit-image appears to be broken.
+-Try re-installing the package following the instructions at:
+-http://scikit-image.org/docs/stable/install.html """
+-
+-
+-def _raise_build_error(e):
+-    # Raise a comprehensible error
+-    local_dir = osp.split(__file__)[0]
+-    msg = _STANDARD_MSG
+-    if local_dir == "skimage":
+-        # Picking up the local install: this will work only if the
+-        # install is an 'inplace build'
+-        msg = _INPLACE_MSG
+-    raise ImportError("""%s
+-It seems that scikit-image has not been built correctly.
+-%s""" % (e, msg))
+-
+-try:
+-    # This variable is injected in the __builtins__ by the build
+-    # process. It used to enable importing subpackages of skimage when
+-    # the binaries are not built
+-    __SKIMAGE_SETUP__
+-except NameError:
+-    __SKIMAGE_SETUP__ = False
+-
+-if __SKIMAGE_SETUP__:
+-    sys.stderr.write('Partial import of skimage during the build process.\n')
+-    # We are not importing the rest of the scikit during the build
+-    # process, as it may not be compiled yet
+-else:
+-    try:
+-        from ._shared import geometry
+-        del geometry
+-    except ImportError as e:
+-        _raise_build_error(e)
+-    from .util.dtype import *
++from .util.dtype import *
+ 
+ 
+ def lookfor(what):
+diff --git a/skimage/_shared/setup.py b/skimage/_shared/setup.py
+index 4822eecc1b..61ebf88044 100644
+--- a/skimage/_shared/setup.py
++++ b/skimage/_shared/setup.py
+@@ -2,7 +2,7 @@
+ 
+ import os
+ 
+-from skimage._build import cython
++from tools.skimage_build_helpers import cython
+ 
+ base_path = os.path.abspath(os.path.dirname(__file__))
+ 
+diff --git a/skimage/draw/setup.py b/skimage/draw/setup.py
+index 924e96c8b3..7563a30cee 100644
+--- a/skimage/draw/setup.py
++++ b/skimage/draw/setup.py
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env python
+ 
+ import os
+-from skimage._build import cython
++from tools.skimage_build_helpers import cython
+ 
+ base_path = os.path.abspath(os.path.dirname(__file__))
+ 
+diff --git a/skimage/feature/setup.py b/skimage/feature/setup.py
+index ccb9b48860..66c1364673 100755
+--- a/skimage/feature/setup.py
++++ b/skimage/feature/setup.py
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env python
+ 
+ import os
+-from skimage._build import cython
++from tools.skimage_build_helpers import cython
+ 
+ base_path = os.path.abspath(os.path.dirname(__file__))
+ 
+diff --git a/skimage/filters/setup.py b/skimage/filters/setup.py
+index 0a21856bfd..f0ec7617b4 100644
+--- a/skimage/filters/setup.py
++++ b/skimage/filters/setup.py
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env python
+ 
+ import os
+-from skimage._build import cython
++from tools.skimage_build_helpers import cython
+ 
+ base_path = os.path.abspath(os.path.dirname(__file__))
+ 
+diff --git a/skimage/future/graph/setup.py b/skimage/future/graph/setup.py
+index 4da3c03524..a29590966b 100644
+--- a/skimage/future/graph/setup.py
++++ b/skimage/future/graph/setup.py
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env python
+ 
+-from skimage._build import cython
++from tools.skimage_build_helpers import cython
+ import os.path
+ 
+ base_path = os.path.abspath(os.path.dirname(__file__))
+diff --git a/skimage/graph/setup.py b/skimage/graph/setup.py
+index 2f5c550617..5e47db883e 100644
+--- a/skimage/graph/setup.py
++++ b/skimage/graph/setup.py
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env python
+ 
+-from skimage._build import cython
++from tools.skimage_build_helpers import cython
+ import os.path
+ 
+ base_path = os.path.abspath(os.path.dirname(__file__))
+diff --git a/skimage/io/_plugins/imread_plugin.py b/skimage/io/_plugins/imread_plugin.py
+index 3f63100aea..8a296b7559 100644
+--- a/skimage/io/_plugins/imread_plugin.py
++++ b/skimage/io/_plugins/imread_plugin.py
+@@ -6,7 +6,7 @@
+     import imread as _imread
+ except ImportError:
+     raise ImportError("Imread could not be found"
+-                      "Please refer to http://pypi.python.org/pypi/imread/ "
++                      "Please refer to http://pypi.org/pypi/imread/ "
+                       "for further instructions.")
+ 
+ 
+diff --git a/skimage/io/setup.py b/skimage/io/setup.py
+index d0583e3701..3f50fa1d2f 100644
+--- a/skimage/io/setup.py
++++ b/skimage/io/setup.py
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env python
+ 
+-from skimage._build import cython
++from tools.skimage_build_helpers import cython
+ 
+ import os.path
+ 
+diff --git a/skimage/measure/setup.py b/skimage/measure/setup.py
+index 7a4663fee6..ba17b1346b 100644
+--- a/skimage/measure/setup.py
++++ b/skimage/measure/setup.py
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env python
+ 
+-from skimage._build import cython
++from tools.skimage_build_helpers import cython
+ 
+ import os
+ base_path = os.path.abspath(os.path.dirname(__file__))
+diff --git a/skimage/morphology/setup.py b/skimage/morphology/setup.py
+index 34ce004c01..4e7171ca9d 100644
+--- a/skimage/morphology/setup.py
++++ b/skimage/morphology/setup.py
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env python
+ 
+ import os
+-from skimage._build import cython
++from tools.skimage_build_helpers import cython
+ 
+ base_path = os.path.abspath(os.path.dirname(__file__))
+ 
+diff --git a/skimage/restoration/setup.py b/skimage/restoration/setup.py
+index 30375d352c..ff61b8f9f2 100644
+--- a/skimage/restoration/setup.py
++++ b/skimage/restoration/setup.py
+@@ -2,7 +2,7 @@
+ 
+ import os
+ 
+-from skimage._build import cython
++from tools.skimage_build_helpers import cython
+ 
+ base_path = os.path.abspath(os.path.dirname(__file__))
+ 
+diff --git a/skimage/segmentation/setup.py b/skimage/segmentation/setup.py
+index 8322649eec..f1bc07f5be 100644
+--- a/skimage/segmentation/setup.py
++++ b/skimage/segmentation/setup.py
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env python
+ 
+ import os
+-from skimage._build import cython
++from tools.skimage_build_helpers import cython
+ 
+ base_path = os.path.abspath(os.path.dirname(__file__))
+ 
+diff --git a/skimage/transform/setup.py b/skimage/transform/setup.py
+index 2af239c0ad..17ff3cb254 100644
+--- a/skimage/transform/setup.py
++++ b/skimage/transform/setup.py
+@@ -2,7 +2,7 @@
+ 
+ import os
+ 
+-from skimage._build import cython
++from tools.skimage_build_helpers import cython
+ 
+ base_path = os.path.abspath(os.path.dirname(__file__))
+ 
+diff --git a/tools/build_versions.py b/tools/build_versions.py
+deleted file mode 100755
+index 681e5d2168..0000000000
+--- a/tools/build_versions.py
++++ /dev/null
+@@ -1,16 +0,0 @@
+-#!/usr/bin/env python
+-
+-import numpy as np
+-import scipy as sp
+-import matplotlib as mpl
+-from PIL import Image
+-import Cython
+-import networkx
+-
+-
+-for m in (np, sp, mpl, Image, networkx, Cython):
+-    if m is Image:
+-        version = m.VERSION
+-    else:
+-        version = m.__version__
+-    print(m.__name__.rjust(10), ' ', version)
+diff --git a/tools/check_sdist.py b/tools/check_sdist.py
+index f5913d5ff9..36680e1f78 100755
+--- a/tools/check_sdist.py
++++ b/tools/check_sdist.py
+@@ -18,13 +18,18 @@
+ data = ['./' + l.split(' ->')[0] for l in data]
+ 
+ ignore_exts = ['.pyc', '.so', '.o', '#', '~', '.gitignore']
+-ignore_dirs = ['./dist', './tools', './doc', './viewer_examples',
+-               './downloads', './scikit_image.egg-info']
++ignore_dirs = ['./dist', './doc', './viewer_examples',
++               './downloads', './scikit_image.egg-info', './tools/travis']
+ ignore_files = ['./TODO.md', './README.md', './MANIFEST',
+                 './.gitignore', './.travis.yml', './.gitmodules',
+                 './.mailmap', './.coveragerc', './.appveyor.yml',
+                 './.pep8speaks.yml',
+-                './skimage/filters/rank/README.rst']
++                './skimage/filters/rank/README.rst',
++                './tools/check_sdist.py',
++                './tools/header.py',
++                './tools/mailmap.py',
++                './tools/rm_pyx_c_file.sh',
++                './tools/upload_wheels.sh']
+ 
+ 
+ missing = []
+diff --git a/tools/rm_pyx_c_file.sh b/tools/rm_pyx_c_file.sh
+index 1febb19e35..000215dcc9 100755
+--- a/tools/rm_pyx_c_file.sh
++++ b/tools/rm_pyx_c_file.sh
+@@ -1,6 +1,11 @@
+ #!/bin/bash
+-# Accepts a .pyx file path and deletes an associated .c file, if present.
++# Accepts a .pyx file path and deletes an associated .c (and md5) file,
++# if present.
+ filename="${1%.*}".c
+ if [ -e "$filename" ]; then
+ 	rm -f "$filename";
+ fi
++filename="${1%.*}".md5
++if [ -e "$filename" ]; then
++	rm -f "$filename";
++fi
+diff --git a/skimage/_build.py b/tools/skimage_build_helpers.py
+similarity index 88%
+rename from skimage/_build.py
+rename to tools/skimage_build_helpers.py
+index a6bba9ca3f..8a24f0f7da 100644
+--- a/skimage/_build.py
++++ b/tools/skimage_build_helpers.py
+@@ -3,7 +3,7 @@
+ import hashlib
+ from distutils.version import LooseVersion
+ 
+-CYTHON_VERSION = '0.23'
++CYTHON_VERSION = '0.23.4'
+ 
+ # WindowsError is not defined on unix systems
+ try:
+@@ -37,9 +37,12 @@ def cython(pyx_files, working_path=''):
+         # the distributed .c files if present
+         c_files = [f.replace('.pyx.in', '.c').replace('.pyx', '.c') for f in pyx_files]
+         for cfile in [os.path.join(working_path, f) for f in c_files]:
+-            if not os.path.isfile(cfile):
+-                raise RuntimeError('Cython >= %s is required to build scikit-image from git checkout' \
+-                                   % CYTHON_VERSION)
++            # check for both c and cpp files (at least _haar.cpp needs this)
++            if not (os.path.isfile(cfile) or os.path.isfile(cfile + 'pp')):
++                raise RuntimeError(
++                    ('Could not find file %s.\n'
++                     'Cython >= %s is required to build scikit-image from git checkout.') \
++                    % (cfile, CYTHON_VERSION))
+ 
+         print("Cython >= %s not found; falling back to pre-built %s" \
+               % (CYTHON_VERSION, " ".join(c_files)))
+diff --git a/tools/travis/before_install.sh b/tools/travis/before_install.sh
+index ffafe2a711..ff4a73a5e0 100755
+--- a/tools/travis/before_install.sh
++++ b/tools/travis/before_install.sh
+@@ -3,71 +3,21 @@ set -ex
+ 
+ export PIP_DEFAULT_TIMEOUT=60
+ 
+-# This URL is for any extra wheels that are not available on pypi.  As of 14
+-# Jan 2017, the major packages such as numpy and matplotlib are up for all
+-# platforms.  The URL points to a Rackspace CDN belonging to the scikit-learn
+-# team.  Please contact Olivier Grisel or Matthew Brett if you need
+-# permissions for this folder.
+-EXTRA_WHEELS="https://5cf40426d9f06eb7461d-6fe47d9331aba7cd62fc36c7196769e4.ssl.cf2.rackcdn.com"
+-WHEELHOUSE="--find-links=$EXTRA_WHEELS"
+-
+-if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then
+-    sh -e /etc/init.d/xvfb start
+-    # This one is for wheels we can only build on the travis precise container.
+-    # As of 14 Jan 2017, this is only pyside.  Also on Rackspace, see above.
+-    # To build new wheels for this container, consider using:
+-    # https://github.com/matthew-brett/travis-wheel-builder . The wheels from
+-    # that building repo upload to the container "travis-wheels" available at
+-    # https://8167b5c3a2af93a0a9fb-13c6eee0d707a05fa610c311eec04c66.ssl.cf2.rackcdn.com
+-    # You then need to transfer them to the container pointed to by the URL
+-    # below (called "precise-wheels" on the Rackspace interface).
+-    PRECISE_WHEELS="https://7d8d0debcc2964ae0517-cec8b1780d3c0de237cc726d565607b4.ssl.cf2.rackcdn.com"
+-    WHEELHOUSE="--find-links=$PRECISE_WHEELS $WHEELHOUSE"
+-fi
+-export WHEELHOUSE
+-
+ export DISPLAY=:99.0
+ export PYTHONWARNINGS="d,all:::skimage"
+ export TEST_ARGS="-v --doctest-modules"
+-WHEELBINARIES="matplotlib scipy pillow cython"
+-
+-retry () {
+-    # https://gist.github.com/fungusakafungus/1026804
+-    local retry_max=3
+-    local count=$retry_max
+-    while [ $count -gt 0 ]; do
+-        "$@" && break
+-        count=$(($count - 1))
+-        sleep 1
+-    done
+-
+-    [ $count -eq 0 ] && {
+-        echo "Retry failed [$retry_max]: $@" >&2
+-        return 1
+-    }
+-    return 0
+-}
+-
+-# add build dependencies
+-echo "cython>=0.23.4" >> requirements/default.txt
+-echo "numpydoc>=0.6" >> requirements/default.txt
+ 
+ if [[ $MINIMUM_REQUIREMENTS == 1 ]]; then
++    sed -i 's/>=/==/g' requirements/build.txt
+     sed -i 's/>=/==/g' requirements/default.txt
++    sed -i 's/>=/==/g' requirements/docs.txt
++    sed -i 's/>=/==/g' requirements/optional.txt
++    sed -i 's/>=/==/g' requirements/test.txt
+ fi
+ 
+ python -m pip install --upgrade pip
+-pip install --retries 3 -q wheel flake8 codecov pytest pytest-cov
+-# install numpy from PyPI instead of our wheelhouse
+-pip install --retries 3 -q wheel numpy
+-
+-# install wheels
+-for requirement in $WHEELBINARIES; do
+-    WHEELS="$WHEELS $(grep $requirement requirements/default.txt)"
+-done
+-pip install --retries 3 -q $PIP_FLAGS $WHEELHOUSE $WHEELS
+ 
+-pip install --retries 3 -q $PIP_FLAGS -r requirements.txt
++pip install --retries 3 -q $PIP_FLAGS -r requirements/build.txt
+ 
+ # Show what's installed
+ pip list
+@@ -83,6 +33,5 @@ section_end () {
+ 
+ export -f section
+ export -f section_end
+-export -f retry
+ 
+ set +ex
+diff --git a/tools/travis/deploy_docs.sh b/tools/travis/deploy_docs.sh
+index 077ae2bc41..17022adbe9 100644
+--- a/tools/travis/deploy_docs.sh
++++ b/tools/travis/deploy_docs.sh
+@@ -1,6 +1,6 @@
+ #!/bin/bash
+-if [[ $TRAVIS_PULL_REQUEST == false && $TRAVIS_BRANCH == "master" &&
+-      $BUILD_DOCS == 1 && $DEPLOY_DOCS == 1 ]]
++if [[ $TRAVIS_PULL_REQUEST == false && "${TRAVIS_BRANCH}" == "master" &&
++      "${BUILD_DOCS}" != "0" && "${DEPLOY_DOCS}" == "1" ]]
+ then
+     # See https://help.github.com/articles/creating-an-access-token-for-command-line-use/ for how to generate a token
+     # See http://docs.travis-ci.com/user/encryption-keys/ for how to generate 
+diff --git a/tools/travis/notes.txt b/tools/travis/notes.txt
+index 0a3d8cf23e..ff72ea5e4c 100644
+--- a/tools/travis/notes.txt
++++ b/tools/travis/notes.txt
+@@ -12,8 +12,6 @@
+      set -ex
+    ```
+ 
+-- Use the `retry` bash function from `before_install.sh` before a command to
+-  have it try 3 times before failing.
+ - Use `pip install --retries N` for retrying package downloads.
+ - Use the `section` function to start a folded section of the script.
+   Section names must have underscores or dots instead of spaces and must be
+diff --git a/tools/travis/script.sh b/tools/travis/script.sh
+index 73ef95a72c..6a6866c10a 100755
+--- a/tools/travis/script.sh
++++ b/tools/travis/script.sh
+@@ -1,33 +1,15 @@
+ #!/usr/bin/env bash
+ export PY=${TRAVIS_PYTHON_VERSION}
+ 
+-# Matplotlib settings - do not show figures during doc examples
+-if [[ $MINIMUM_REQUIREMENTS == 1 || $TRAVIS_OS_NAME == "osx" ]]; then
+-    MPL_DIR=$HOME/.matplotlib
+-else
+-    MPL_DIR=$HOME/.config/matplotlib
+-fi
+-
+-mkdir -p $MPL_DIR
+-touch $MPL_DIR/matplotlibrc
+-
+-if [[ $TRAVIS_OS_NAME == "osx" ]]; then
+-    echo 'backend : Template' > $MPL_DIR/matplotlibrc
+-fi
+-
+-section "Test.with.min.requirements"
+-pytest $TEST_ARGS skimage
+-section_end "Test.with.min.requirements"
+-
+ section "Flake8.test"
+ flake8 --exit-zero --exclude=test_* skimage doc/examples viewer_examples
+ section_end "Flake8.test"
+ 
+ section "Tests.pytest"
+ # run tests. If running with optional dependencies, report coverage
+-if [[ "$OPTIONAL_DEPS" == "1" ]]; then
++#if [[ "$OPTIONAL_DEPS" == "1" ]]; then
+   export TEST_ARGS="${TEST_ARGS} --cov=skimage"
+-fi
++#fi
+ # Show what's installed
+ pip list
+ pytest ${TEST_ARGS} skimage

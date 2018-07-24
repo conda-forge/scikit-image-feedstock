@@ -1,0 +1,92 @@
+diff --git a/doc/release/release_dev.rst b/doc/release/release_dev.rst
+index 12a1793289..dae830a66c 100644
+--- a/doc/release/release_dev.rst
++++ b/doc/release/release_dev.rst
+@@ -26,6 +26,8 @@ Improvements
+ 
+ API Changes
+ -----------
++- imageio is now the preferred plugin for reading and writing images.
++- imageio is now a dependency of scikit-image.
+ 
+ 
+ 
+diff --git a/requirements/default.txt b/requirements/default.txt
+index 2735b203b9..a8f7fb9eba 100644
+--- a/requirements/default.txt
++++ b/requirements/default.txt
+@@ -2,7 +2,7 @@ numpy>=1.11
+ scipy>=0.17.0
+ matplotlib>=2.0.0
+ networkx>=2.0
+-pillow>=4.3.0
++imageio>=2.0.1
+ PyWavelets>=0.4.0
+ dask[array]>=0.9.0
+ cloudpickle>=0.2.1
+diff --git a/requirements/optional.txt b/requirements/optional.txt
+index ad4f25676f..fe5fab99e9 100644
+--- a/requirements/optional.txt
++++ b/requirements/optional.txt
+@@ -3,4 +3,3 @@ imread
+ SimpleITK
+ astropy
+ tifffile
+-imageio
+diff --git a/skimage/io/_io.py b/skimage/io/_io.py
+index 33520137b0..0534d7723f 100644
+--- a/skimage/io/_io.py
++++ b/skimage/io/_io.py
+@@ -24,7 +24,7 @@ def imread(fname, as_gray=False, plugin=None, flatten=None,
+         Images that are already in gray-scale format are not converted.
+     plugin : str, optional
+         Name of plugin to use.  By default, the different plugins are
+-        tried (starting with the Python Imaging Library) until a suitable
++        tried (starting with imageio) until a suitable
+         candidate is found.  If not given and fname is a tiff file, the
+         tifffile plugin will be used.
+ 
+@@ -115,7 +115,7 @@ def imsave(fname, arr, plugin=None, **plugin_args):
+         Image data.
+     plugin : str
+         Name of plugin to use.  By default, the different plugins are
+-        tried (starting with the Python Imaging Library) until a suitable
++        tried (starting with imageio) until a suitable
+         candidate is found.  If not given and fname is a tiff file, the
+         tifffile plugin will be used.
+ 
+@@ -151,7 +151,7 @@ def imshow(arr, plugin=None, **plugin_args):
+         Image data or name of image file.
+     plugin : str
+         Name of plugin to use.  By default, the different plugins are
+-        tried (starting with the Python Imaging Library) until a suitable
++        tried (starting with imageio) until a suitable
+         candidate is found.
+ 
+     Other parameters
+diff --git a/skimage/io/manage_plugins.py b/skimage/io/manage_plugins.py
+index f80f7f555a..4de6edb21b 100644
+--- a/skimage/io/manage_plugins.py
++++ b/skimage/io/manage_plugins.py
+@@ -45,7 +45,7 @@
+ # the following preferences.
+ preferred_plugins = {
+     # Default plugins for all types (overridden by specific types below).
+-    'all': ['pil', 'matplotlib', 'qt'],
++    'all': ['imageio', 'pil', 'matplotlib', 'qt'],
+     'imshow': ['matplotlib'],
+     'imshow_collection': ['matplotlib']
+ }
+diff --git a/skimage/io/tests/test_collection.py b/skimage/io/tests/test_collection.py
+index a56d3e4855..7cdcfc1ad6 100644
+--- a/skimage/io/tests/test_collection.py
++++ b/skimage/io/tests/test_collection.py
+@@ -46,7 +46,7 @@ def test_len(self):
+     def test_getitem(self):
+         num = len(self.images)
+         for i in range(-num, num):
+-            assert type(self.images[i]) is np.ndarray
++            assert isinstance(self.images[i], np.ndarray)
+         assert_allclose(self.images[0],
+                         self.images[-num])
+ 

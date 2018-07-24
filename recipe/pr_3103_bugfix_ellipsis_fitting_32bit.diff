@@ -1,0 +1,15 @@
+diff --git a/skimage/measure/fit.py b/skimage/measure/fit.py
+index 90f749e3d2..294586e0c3 100644
+--- a/skimage/measure/fit.py
++++ b/skimage/measure/fit.py
+@@ -434,6 +434,10 @@ def estimate(self, data):
+         except np.linalg.LinAlgError:  # LinAlgError: Singular matrix
+             return False
+ 
++        # Compute the condition number of M before taking an inverse
++        if np.linalg.cond(M) > 1 / np.finfo(np.double).eps:
++            return False
++
+         # M*|a b c >=l|a b c >. Find eigenvalues and eigenvectors
+         # from this equation [eqn. 28]
+         eig_vals, eig_vecs = np.linalg.eig(M)

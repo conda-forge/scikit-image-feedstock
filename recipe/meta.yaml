@@ -1,18 +1,24 @@
-{% set version = "0.14.0" %}
+{% set version = "0.15.dev0.nightly" %}
 
 package:
   name: scikit-image
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
-  sha256: 325f75eb80fbc5371136e37f323445309ca9f65b6c6f718d0d0e2189e5de1224
+  git_url: https://github.com/scikit-image/scikit-image
+  patches:
+    - pr_3147_simplify_build_process.diff
+    - pr_3146_bugfix_seperate_stains_log10.diff
+    - pr_3143_supress_warnings_for_flatten_during_testing.diff
+    - pr_3126_imageio_preferred_over_PIL.diff
+    - pr_3103_bugfix_ellipsis_fitting_32bit.diff
+    - pr_3077_feature_transform_geometry.diff
+    - pr_3069_feature_rectangle_perimeter.diff
+    - pr_3057_feature_bayer2rgb.diff
 
 build:
   number: 1
   script:
-    - rm -f skimage/run-hessian.py
-    - rm -rf skimage/viewer/tests  # we don't depend on Qt
     - python -m pip install --no-deps --ignore-installed .
   entry_points:
     - skivi = skimage.scripts.skivi:main
@@ -23,9 +29,9 @@ requirements:
     - {{ compiler("cxx") }}
   host:
     - python
+    - ccache
     - pip
     - cython >=0.23
-    - six >=1.7.3
     - numpy 1.11.3
     - scipy >=0.17
     - numpydoc >=0.6
@@ -35,7 +41,6 @@ requirements:
     - six >=1.7.3
     - {{ pin_compatible('numpy') }}
     - scipy >=0.17
-    - matplotlib >=2.0.0
     - networkx >=1.8
     - pillow >=4.3.0
     - dask-core >=0.15
@@ -44,6 +49,7 @@ requirements:
     - dask-core >=0.9.0
     - cloudpickle >=0.2.1
     - imageio >=2.1.0
+    - matplotlib >=2.0.0
 
 test:
   requires:
@@ -51,6 +57,8 @@ test:
     - pytest-cov
   imports:
     - skimage
+  commands:
+    - MPLBACKEND=Agg pytest --pyargs skimage
 
 about:
   home: http://scikit-image.org/

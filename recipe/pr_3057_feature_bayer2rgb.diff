@@ -1,0 +1,670 @@
+diff --git a/skimage/color/__init__.py b/skimage/color/__init__.py
+index 6f69b06f28..781c5187f4 100644
+--- a/skimage/color/__init__.py
++++ b/skimage/color/__init__.py
+@@ -33,6 +33,7 @@
+                         ycbcr2rgb,
+                         rgb2ydbdr,
+                         ydbdr2rgb,
++                        bayer2rgb,
+                         separate_stains,
+                         combine_stains,
+                         rgb_from_hed,
+diff --git a/skimage/color/colorconv.py b/skimage/color/colorconv.py
+index 7196a4d089..7b42d198d4 100644
+--- a/skimage/color/colorconv.py
++++ b/skimage/color/colorconv.py
+@@ -1885,3 +1885,462 @@ def ydbdr2rgb(ydbdr):
+     """
+     arr = ydbdr.copy()
+     return _convert(rgb_from_ydbdr, arr)
++
++
++def bayer2rgb_naive(raw_image, bayer_pattern=['rg', 'gb'], dtype=None,
++                    output=None):
++    bayer2rgb_naive.__doc__ = """
++    This performs horribly
++
++    import numpy as np
++    from skimage.color.colorconv import bayer2rgb_naive, bayer2rgb
++    a = np.random.rand(2432, 4320)
++    b = a.astype(dtype='float32')
++    c = (a * 255).astype('uint8')
++    print('float64')
++    %timeit bayer2rgb_naive(a)
++    %timeit bayer2rgb(a)
++    print('float32')
++    %timeit bayer2rgb_naive(b)
++    %timeit bayer2rgb(b)
++    print('uint8')
++    %timeit bayer2rgb_naive(c)
++    %timeit bayer2rgb(c)
++
++    float64
++    353 ms ± 7.79 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
++    296 ms ± 1.52 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
++    float32
++    367 ms ± 7.92 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
++    155 ms ± 1.49 ms per loop (mean ± std. dev. of 7 runs, 10 loops each)
++    uint8
++    622 ms ± 7.07 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
++    188 ms ± 2.47 ms per loop (mean ± std. dev. of 7 runs, 10 loops each)
++    """ + bayer2rgb.__doc__
++
++    from scipy.ndimage import convolve
++    from ..util.dtype import convert
++
++    if not isinstance(bayer_pattern, str):
++        bayer_pattern = ''.join(bayer_pattern)
++    if bayer_pattern not in {'rggb', 'grbg', 'bggr', 'gbrg'}:
++        raise ValueError('Unknown bayer_pattern')
++
++    if len(raw_image.shape) != 2:
++        raise ValueError("Image must be a 2D image.")
++    if raw_image.shape[0] % 2 != 0 or raw_image.shape[1] % 2 != 0:
++        raise ValueError("Image must have an even number of rows and columns")
++
++    if output is not None:
++        output[...] = 0
++        dtype = output.dtype
++    else:
++        if dtype is None:
++            dtype = raw_image.dtype
++        output = np.zeros((raw_image.shape[0], raw_image.shape[1], 3),
++                          dtype=dtype)
++
++    K_green = np.array([[0, 1, 0],
++                        [1, 4, 1],
++                        [0, 1, 0]], dtype=dtype)
++    K_red_or_blue = np.array([[1, 2, 1],
++                              [2, 4, 2],
++                              [1, 2, 1]], dtype=dtype)
++
++    if 'r' == bayer_pattern[0]:
++        output[0::2, 0::2, 0] = convert(raw_image[0::2, 0::2], dtype=dtype)
++    elif 'r' == bayer_pattern[1]:
++        output[0::2, 1::2, 0] = convert(raw_image[0::2, 1::2], dtype=dtype)
++    elif 'r' == bayer_pattern[2]:
++        output[1::2, 0::2, 0] = convert(raw_image[1::2, 0::2], dtype=dtype)
++    else:  # 'r' == bayer_patter[2]:
++        output[1::2, 1::2, 0] = convert(raw_image[1::2, 1::2], dtype=dtype)
++
++    if 'g' == bayer_pattern[0]:
++        output[0::2, 0::2, 1] = convert(raw_image[0::2, 0::2], dtype=dtype)
++        output[1::2, 1::2, 1] = convert(raw_image[1::2, 1::2], dtype=dtype)
++    else:  # 'g' == bayer_pattern[1]:
++        output[0::2, 1::2, 1] = convert(raw_image[0::2, 1::2], dtype=dtype)
++        output[1::2, 0::2, 1] = convert(raw_image[1::2, 0::2], dtype=dtype)
++
++    if 'b' == bayer_pattern[0]:
++        output[0::2, 0::2, 2] = convert(raw_image[0::2, 0::2], dtype=dtype)
++    elif 'b' == bayer_pattern[1]:
++        output[0::2, 1::2, 2] = convert(raw_image[0::2, 1::2], dtype=dtype)
++    elif 'b' == bayer_pattern[2]:
++        output[1::2, 0::2, 2] = convert(raw_image[1::2, 0::2], dtype=dtype)
++    else:  # 'b' == bayer_patter[3]:
++        output[1::2, 1::2, 2] = convert(raw_image[1::2, 1::2], dtype=dtype)
++
++    if dtype.kind == 'f':
++        # Predivide the small array
++        K_green /= 4
++        K_red_or_blue /= 4
++    else:
++        # Can't divide K, would get 0, so remove significant bits from output
++        output //= 4
++
++    # do not use the output parameter of convolve.
++    # It assumes the input and output arrays are different.
++    output[:, :, 0] = convolve(output[:, :, 0], K_red_or_blue, mode='mirror')
++    output[:, :, 1] = convolve(output[:, :, 1], K_green, mode='mirror')
++    output[:, :, 2] = convolve(output[:, :, 2], K_red_or_blue, mode='mirror')
++
++    return output
++
++
++def bayer2rgb(raw_image, bayer_pattern=['rg', 'gb'], dtype=None):
++    """Converts an raw image obtained from a sensor with bayer filter to color.
++
++    Converts the from raw data obtained from the sensor with bayer filter
++    to one that has an extra dimension to describe RGB colors.
++
++    It does so by:
++        1. Expands the NxM image to NxMx3 image.
++        2. Assigning the values of the red green and blue pixels by the ones
++           measured by the sensor.
++        3. Convolves the color images with the following kernels to fill in the
++           missing values.
++
++    K_green = 1 / 4 * np.array([[0, 1, 0],
++                           [1, 4, 1],
++                           [0, 1, 0]], dtype='float32')
++    K_red_or_blue = 1 / 4 * np.array([[1, 2, 1],
++                            [2, 4, 2],
++                            [1, 2, 1]], dtype='float32')
++
++
++    Follows the discussion in
++    Color Image and Video Enhancement
++    Celebi, M.E, Leccca M: Smolka B, 2015
++
++    Chapter 2: Image Demosaicing
++    Ruiwen Zhen and Robert L. Stevenson
++
++    Note that they mention that this technique introduces artifacts
++    and they don't recommend it ;).
++    They mention a simple method is a 5x5 kernel too. Will try that after
++    this speeds up a little bit.
++    Parameters
++    ==========
++    raw_image: np.array [N, M]
++        N and M must be multiples of 2. This contains the raw data as measured
++        from the sensor.
++    bayer_pattern: {['rg', 'gb'],
++                    ['gr', 'bg'],
++                    ['bg', 'gr'],
++                    ['gb', 'rg']}
++        The bayer pattern that corresponds to the given array.
++    dtype: np.dtype (optional)
++        Output image type. If the output image has more precision than the
++        input image, then it is used during the computation. Otherwise, the
++        computation is done using the input image type and the result is
++        converted to the output image type.
++
++        Where permitted, inputs are first scaled down to avoid overflow errors.
++    output: ndimage, optional
++        Output image type. dtype is derived from this if provided
++
++    """
++
++    """The implementation has been unrolled to improve speed.
++    If anybody knows a fast, more readible implemenetation,
++    please change this unrolled one.
++
++    It works about
++    50% as fast for float32
++    10% faster for float64
++    60% faster uint8
++
++    See _bayer2rgb_naive for unrolled implemementation
++    """
++    from ..util.dtype import convert
++
++    if not isinstance(bayer_pattern, str):
++        bayer_pattern = ''.join(bayer_pattern)
++    if bayer_pattern not in {'rggb', 'grbg', 'bggr', 'gbrg'}:
++        raise ValueError('Unknown bayer_patter')
++
++    if len(raw_image.shape) != 2:
++        raise ValueError("Image must be a 2D image.")
++    if raw_image.shape[0] % 2 != 0 or raw_image.shape[1] % 2 != 0:
++        raise ValueError("Image must have an even number of rows and columns")
++
++    if dtype is None:
++        dtype = raw_image.dtype
++    else:
++        dtype = np.dtype(dtype)
++
++    try:
++        from skimage.util.dtype import check_precision_loss
++    except ImportError:
++        def check_precision_loss(*args, **kwargs):
++            pass
++    check_precision_loss(raw_image.dtype, dtype,
++                         output_warning=True,
++                         int_same_size_lossy=True)
++
++    # Allocate a C continuous array
++    color_image = np.zeros((raw_image.shape[0], raw_image.shape[1], 3),
++                           dtype=dtype)
++
++    # These functions are defined so as to allow floating pointers to use
++    # True divide, while allowing integer types to floor divide and then
++    # add avoiding overflow errors
++    if dtype.kind == 'f':
++        def divide_by_2(array):
++            return array * np.array(0.5, dtype=dtype)
++
++        def add_divide_by_2(array1, array2):
++            return (array1 + array2) * np.array(0.5, dtype=dtype)
++
++        def add_divide_by_4(array1, array2):
++            return (array1 + array2) * np.array(0.25, dtype=dtype)
++
++    else:
++        def divide_by_2(array):
++            return array // 2
++
++        def add_divide_by_2(array1, array2):
++            return array1 // 2 + array2 // 2
++
++        def add_divide_by_4(array1, array2):
++            return add_divide_by_2(array1, array2) // 2
++
++    # Create convenient views
++    # These views have for their first two indicies the pixels "mega pixels"
++    # that contain something like
++    # rg
++    # gb
++    # The last two indicies are the index of the subpixel within it
++    red_image = color_image[:, :, 0]
++    red_image.shape = (red_image.shape[0] // 2, 2, red_image.shape[1] // 2, 2)
++    red_image = np.swapaxes(red_image, 1, 2)
++
++    green_image = color_image[:, :, 1]
++    green_image.shape = (
++        raw_image.shape[0] // 2, 2, raw_image.shape[1] // 2, 2)
++    green_image = np.swapaxes(green_image, 1, 2)
++
++    blue_image = color_image[:, :, 2]
++    blue_image.shape = (raw_image.shape[0] // 2, 2, raw_image.shape[1] // 2, 2)
++    blue_image = np.swapaxes(blue_image, 1, 2)
++
++    # TODO: allow convert to take in the "output" image
++    #       this helps for large arrays, but maybe for small arrays too
++    # convert(raw_image[0::2, 0::2], output=red_image[:, :, 0, 0])
++    # convert(raw_image[1::2, 1::2], output=blue_image[:, :, 1, 1])
++    # convert(raw_image[0::2, 1::2], output=green_image[:, :, 0, 1])
++    # convert(raw_image[1::2, 0::2], output=green_image[:, :, 1, 0])
++
++    def infill_red_or_blue_00(rb):
++        rb[:, :, 0, 0] = convert(raw_image[0::2, 0::2], dtype=dtype)
++        # Compute this one first, because if the array is C continuous, this
++        # Each line here is on the same cache line
++        # Adjacent pixels
++        rb[:, :-1, 0, 1] = add_divide_by_2(rb[:, :-1, 0, 0], rb[:, 1:, 0, 0])
++        rb[:, -1, 0, 1] = rb[:, -1, 0, 0]
++
++        # This actually takes care of the "corner" pixel because
++        # The values around that one pixel have now been filled in
++        rb[:-1, :, 1, :] = add_divide_by_2(rb[:-1, :, 0, :], rb[1:, :, 0, :])
++        rb[-1, :, 1, :] = rb[-1, :, 0, :]
++
++    def infill_red_or_blue_01(rb):
++        rb[:, :, 0, 1] = convert(raw_image[0::2, 1::2], dtype=dtype)
++        rb[:, 1:, 0, 0] = add_divide_by_2(rb[:, 1:, 0, 1], rb[:, :-1, 0, 1])
++        rb[:, 0, 0, 0] = rb[:, 0, 0, 1]
++        rb[:-1, :, 1, :] = add_divide_by_2(rb[:-1, :, 0, :], rb[1:, :, 0, :])
++        rb[-1, :, 1, :] = rb[-1, :, 0, :]
++
++    def infill_red_or_blue_10(rb):
++        rb[:, :, 1, 0] = convert(raw_image[1::2, 0::2], dtype=dtype)
++        rb[:, :-1, 1, 1] = add_divide_by_2(rb[:, :-1, 1, 0], rb[:, 1:, 1, 0])
++        rb[:, -1, 1, 1] = rb[:, -1, 1, 0]
++        rb[1:, :, 0, :] = add_divide_by_2(rb[1:, :, 1, :], rb[:-1, :, 1, :])
++        rb[0, :, 0, :] = rb[0, :, 1, :]
++
++    def infill_red_or_blue_11(rb):
++        rb[:, :, 1, 1] = convert(raw_image[1::2, 1::2], dtype=dtype)
++        rb[:, 1:, 1, 0] = add_divide_by_2(rb[:, :-1, 1, 1], rb[:, 1:, 1, 1])
++        rb[:, 0, 1, 0] = rb[:, 0, 1, 1]
++        rb[1:, :, 0, :] = add_divide_by_2(rb[:-1, :, 1, :], rb[1:, :, 1, :])
++        rb[0, :, 0, :] = rb[0, :, 1, :]
++
++    def infill_green_01(g):
++        g[:, :, 1, 0] = convert(raw_image[1::2, 0::2], dtype=dtype)
++        g[:, :, 0, 1] = convert(raw_image[0::2, 1::2], dtype=dtype)
++        # Compute the convolution horizontally
++        g[:, 1:, 0, 0] = add_divide_by_4(g[:, :-1, 0, 1], g[:, 1:, 0, 1])
++        g[:, 0, 0, 0] = divide_by_2(g[:, 0, 0, 1])
++
++        g[:, -1, 1, 1] = divide_by_2(g[:, -1, 1, 0])
++        g[:, :-1, 1, 1] = add_divide_by_4(g[:, :-1, 1, 0], g[:, 1:, 1, 0])
++
++        # Now compute it vertically
++        g[1:, :, 0, 0] += add_divide_by_4(g[1:, :, 1, 0], g[:-1, :, 1, 0])
++        g[0, :, 0, 0] += divide_by_2(g[0, :, 1, 0])
++
++        g[:-1, :, 1, 1] += add_divide_by_4(g[:-1, :, 0, 1], g[1:, :, 0, 1])
++        g[-1, :, 1, 1] += divide_by_2(g[-1, :, 0, 1])
++
++    def infill_green_00(g):
++        g[:, :, 0, 0] = convert(raw_image[0::2, 0::2], dtype=dtype)
++        g[:, :, 1, 1] = convert(raw_image[1::2, 1::2], dtype=dtype)
++        g[:, 1:, 1, 0] = add_divide_by_4(g[:, :-1, 1, 1], g[:, 1:, 1, 1])
++        g[:, 0, 1, 0] = divide_by_2(g[:, 0, 1, 1])
++
++        g[:, -1, 0, 1] = divide_by_2(g[:, -1, 0, 0])
++        g[:, :-1, 0, 1] = add_divide_by_4(g[:, :-1, 0, 0], g[:, 1:, 0, 0])
++
++        g[0, :, 0, 1] += divide_by_2(g[0, :, 1, 1])
++        g[-1, :, 1, 0] += divide_by_2(g[-1, :, 0, 0])
++
++        g[1:, :, 0, 1] += add_divide_by_4(g[1:, :, 1, 1], g[:-1, :, 1, 1])
++        g[:-1, :, 1, 0] += add_divide_by_4(g[:-1, :, 0, 0], g[1:, :, 0, 0])
++
++    if bayer_pattern[0] == 'r':
++        infill_red_or_blue_00(red_image)
++    elif bayer_pattern[1] == 'r':
++        infill_red_or_blue_01(red_image)
++    elif bayer_pattern[2] == 'r':
++        infill_red_or_blue_10(red_image)
++    elif bayer_pattern[3] == 'r':
++        infill_red_or_blue_11(red_image)
++
++    if bayer_pattern[0] == 'b':
++        infill_red_or_blue_00(blue_image)
++    elif bayer_pattern[1] == 'b':
++        infill_red_or_blue_01(blue_image)
++    elif bayer_pattern[2] == 'b':
++        infill_red_or_blue_10(blue_image)
++    elif bayer_pattern[3] == 'b':
++        infill_red_or_blue_11(blue_image)
++
++    if bayer_pattern[0] == 'g':
++        infill_green_00(green_image)
++    elif bayer_pattern[1] == 'g':
++        infill_green_01(green_image)
++
++    return color_image
++
++
++def bayer2rgb_redux(raw_image, bayer_pattern=['rg', 'gb'], dtype=None):
++    """This was an earlier, much cleaner implementation I had written.
++    I was having trouble with the ndfilter. With the testing suite being
++    corrrect now, it was easier to debug.
++    I think to have gotten it now.
++
++    I don't know which of the 3 is the fastest. Need to benchmark.
++
++    """
++    from ..util.dtype import convert
++    from scipy.ndimage import uniform_filter1d
++
++    if not isinstance(bayer_pattern, str):
++        bayer_pattern = ''.join(bayer_pattern)
++    if bayer_pattern not in {'rggb', 'grbg', 'bggr', 'gbrg'}:
++        raise ValueError('Unknown bayer_patter')
++
++    if len(raw_image.shape) != 2:
++        raise ValueError("Image must be a 2D image.")
++    if raw_image.shape[0] % 2 != 0 or raw_image.shape[1] % 2 != 0:
++        raise ValueError("Image must have an even number of rows and columns")
++
++    if dtype is None:
++        dtype = raw_image.dtype
++    else:
++        dtype = np.dtype(dtype)
++
++    try:
++        from skimage.util.dtype import check_precision_loss
++    except ImportError:
++        def check_precision_loss(*args, **kwargs):
++            pass
++    check_precision_loss(raw_image.dtype, dtype,
++                         output_warning=True,
++                         int_same_size_lossy=True)
++
++    # These functions are defined so as to allow floating pointers to use
++    # True divide, while allowing integer types to floor divide and then
++    # add avoiding overflow errors
++    if dtype.kind == 'f':
++        def add_divide_by_2(array1, array2):
++            return (array1 + array2) * np.array(0.5, dtype=dtype)
++    else:
++        def add_divide_by_2(array1, array2):
++            return array1 // 2 + array2 // 2
++
++    # Allocate a C continuous array
++    color_image = np.zeros((raw_image.shape[0], raw_image.shape[1], 3),
++                           dtype=dtype)
++
++    red = color_image[:, :, 0]
++    green = color_image[:, :, 1]
++    blue = color_image[:, :, 2]
++
++    def infill_red_or_blue_00(rb):
++        rb[::2, ::2] = convert(raw_image[0::2, 0::2], dtype=dtype)
++        # Compute this one first, because if the array is C continuous, this
++        # Each line here is on the same cache line
++        # Adjacent pixels
++        uniform_filter1d(rb[::2, ::2], size=2, origin=-1, output=rb[::2, 1::2])  # noqa
++        uniform_filter1d(rb[::2, :], size=2, axis=0, origin=-1, output=rb[1::2, :])  # noqa
++
++    def infill_red_or_blue_01(rb):
++        rb[0::2, 1::2] = convert(raw_image[0::2, 1::2], dtype=dtype)
++        uniform_filter1d(rb[::2, 1::2], size=2, origin=0, output=rb[::2, 0::2])  # noqa
++        uniform_filter1d(rb[::2, :], size=2, axis=0, origin=-1, output=rb[1::2, :])  # noqa
++
++    def infill_red_or_blue_10(rb):
++        rb[1::2, 0::2] = convert(raw_image[1::2, 0::2], dtype=dtype)
++        uniform_filter1d(rb[1::2, ::2], size=2, axis=1, origin=-1, output=rb[1::2, 1::2])  # noqa
++        uniform_filter1d(rb[1::2, :], size=2, axis=0, origin=0, output=rb[::2, :])  # noqa
++
++    def infill_red_or_blue_11(rb):
++        rb[1::2, 1::2] = convert(raw_image[1::2, 1::2], dtype=dtype)
++        uniform_filter1d(rb[1::2, 1::2], size=2, axis=1, origin=0, output=rb[1::2, 0::2])  # noqa
++        uniform_filter1d(rb[1::2, :], size=2, axis=0, origin=0, output=rb[::2, :])  # noqa
++
++    if bayer_pattern[0] == 'r':
++        infill_red_or_blue_00(red)
++    elif bayer_pattern[1] == 'r':
++        infill_red_or_blue_01(red)
++    elif bayer_pattern[2] == 'r':
++        infill_red_or_blue_10(red)
++    elif bayer_pattern[3] == 'r':
++        infill_red_or_blue_11(red)
++
++    if bayer_pattern[0] == 'b':
++        infill_red_or_blue_00(blue)
++    elif bayer_pattern[1] == 'b':
++        infill_red_or_blue_01(blue)
++    elif bayer_pattern[2] == 'b':
++        infill_red_or_blue_10(blue)
++    elif bayer_pattern[3] == 'b':
++        infill_red_or_blue_11(blue)
++
++    if bayer_pattern[0] == 'g':
++        green[::2, ::2] = convert(raw_image[0::2, 0::2], dtype=dtype)
++        green[1::2, 1::2] = convert(raw_image[1::2, 1::2], dtype=dtype)
++        g01_from_00 = uniform_filter1d(green[::2, ::2], size=2, axis=1, origin=-1)  # noqa
++        g01_from_11 = uniform_filter1d(green[1::2, 1::2], size=2, axis=0, origin=0)  # noqa
++
++        g10_from_00 = uniform_filter1d(green[::2, ::2], size=2, axis=0, origin=-1)  # noqa
++        g10_from_11 = uniform_filter1d(green[1::2, 1::2], size=2, axis=1, origin=0)  # noqa
++
++        green[::2, 1::2] = add_divide_by_2(g01_from_00, g01_from_11)
++        green[1::2, ::2] = add_divide_by_2(g10_from_00, g10_from_11)
++    elif bayer_pattern[1] == 'g':
++        green[1::2, ::2] = convert(raw_image[1::2, 0::2], dtype=dtype)
++        green[::2, 1::2] = convert(raw_image[0::2, 1::2], dtype=dtype)
++
++        g00_from_01 = uniform_filter1d(green[::2, 1::2], size=2, axis=1, origin=0)  # noqa
++        g00_from_10 = uniform_filter1d(green[1::2, ::2], size=2, axis=0, origin=0)  # noqa
++
++        g11_from_01 = uniform_filter1d(green[::2, 1::2], size=2, axis=0, origin=-1)  # noqa
++        g11_from_10 = uniform_filter1d(green[1::2, ::2], size=2, axis=1, origin=-1)  # noqa
++
++        green[0::2, 0::2] = add_divide_by_2(g00_from_10, g00_from_01)
++        green[1::2, 1::2] = add_divide_by_2(g11_from_10, g11_from_01)
++    return color_image
+diff --git a/skimage/color/tests/test_colorconv.py b/skimage/color/tests/test_colorconv.py
+index 23d43dc6a9..f44d074f90 100644
+--- a/skimage/color/tests/test_colorconv.py
++++ b/skimage/color/tests/test_colorconv.py
+@@ -17,6 +17,7 @@
+ import numpy as np
+ from skimage._shared.testing import assert_equal, assert_almost_equal
+ from skimage._shared.testing import assert_array_almost_equal
++from skimage._shared.testing import raises, assert_allclose
+ from skimage._shared.testing import TestCase
+ 
+ from skimage import img_as_float, img_as_ubyte
+@@ -40,12 +41,18 @@
+                            rgb2ycbcr, ycbcr2rgb,
+                            rgb2ydbdr, ydbdr2rgb,
+                            rgba2rgb,
++                           bayer2rgb,
+                            guess_spatial_dimensions)
+ 
++# Internal function used to test mathematical behavior
++# Easy implementation, but slow
++from skimage.color.colorconv import bayer2rgb_naive, bayer2rgb_redux
++from skimage.util.dtype import convert
+ from skimage import data_dir
+ from skimage._shared._warnings import expected_warnings
+ from skimage._shared import testing
+ import colorsys
++import warnings
+ 
+ 
+ def test_guess_spatial_dimensions():
+@@ -545,3 +552,159 @@ def test_gray2rgb_alpha():
+                           alpha=True)[0, 0, 3], 1)
+     assert_equal(gray2rgb(np.array([[1, 2], [3, 4]], dtype=np.uint8),
+                           alpha=True)[0, 0, 3], 255)
++
++
++def test_bayer2rgb():
++    bayer_functions = [bayer2rgb, bayer2rgb_naive, bayer2rgb_redux]
++
++    def test_debayer(bayer_image, expected, pattern):
++        for b2rgb in bayer_functions:
++            for dtype in ['float64', 'float32', 'uint16', 'uint8', 'int16', 'uint8']:  # noqa
++                if dtype != 'float64':
++                    with expected_warnings(['precision loss']):
++                        b = convert(bayer_image, dtype=dtype)
++                    with expected_warnings(['precision loss']):
++                        e = convert(expected, dtype=dtype)
++                else:
++                    b = convert(bayer_image, dtype=dtype)
++                    e = convert(expected, dtype=dtype)
++                color_image = b2rgb(b, pattern)
++                if b.dtype.kind == 'f':
++                    assert_almost_equal(e[..., 0], color_image[..., 0])
++                    assert_almost_equal(e[..., 1], color_image[..., 1])
++                    assert_almost_equal(e[..., 2], color_image[..., 2])
++                else:
++                    # We divide by 4, therefore, we might be off by as
++                    # much as 4???
++                    assert_allclose(e[..., 0], color_image[..., 0], atol=4)
++                    assert_allclose(e[..., 1], color_image[..., 1], atol=4)
++                    assert_allclose(e[..., 2], color_image[..., 2], atol=4)
++
++    # image of odd shape
++    for bayer_image in [np.zeros((4, 3)), np.zeros((3, 4)), np.zeros((3, 3))]:
++        for b2rgb in bayer_functions:
++            with raises(ValueError):
++                b2rgb(bayer_image)
++
++    bayer_image = np.array([[1, 0.5], [0.25, 0.33]], dtype=float)
++
++    # Bogus pattern
++    for b2rgb in bayer_functions:
++        with raises(ValueError):
++            b2rgb(bayer_image, 'gggg')
++        with raises(ValueError):
++            b2rgb(bayer_image, ['gg', 'gg'])
++
++    # edge case 2x2 pixel containing only "one" super pixel
++    # grbg
++    expected_color_image = np.empty(
++        (bayer_image.shape[0], bayer_image.shape[1], 3),
++        dtype=bayer_image.dtype)
++    expected_color_image[:, :, 0] = bayer_image[0, 1]
++    expected_color_image[:, :, 2] = bayer_image[1, 0]
++    expected_color_image[:, :, 1] = (bayer_image[0, 0] + bayer_image[1, 1]) / 2
++    expected_color_image[0, 0, 1] = bayer_image[0, 0]
++    expected_color_image[1, 1, 1] = bayer_image[1, 1]
++
++    test_debayer(bayer_image, expected_color_image, 'grbg')
++
++    # gbrg
++    expected_color_image[..., 2], expected_color_image[..., 0] = \
++        expected_color_image[..., 0].copy(), expected_color_image[..., 2].copy()  # noqa
++    test_debayer(bayer_image, expected_color_image, 'gbrg')
++
++    # rggb
++    expected_color_image[:, :, 0] = bayer_image[0, 0]
++    expected_color_image[:, :, 2] = bayer_image[1, 1]
++    expected_color_image[:, :, 1] = (bayer_image[0, 1] + bayer_image[1, 0]) / 2
++    expected_color_image[0, 1, 1] = bayer_image[0, 1]
++    expected_color_image[1, 0, 1] = bayer_image[1, 0]
++
++    test_debayer(bayer_image, expected_color_image, 'rggb')
++
++    # bggr
++    expected_color_image[..., 2], expected_color_image[..., 0] = \
++        expected_color_image[..., 0].copy(), expected_color_image[..., 2].copy()  # noqa
++
++    test_debayer(bayer_image, expected_color_image, 'bggr')
++
++    bayer_image = np.reshape(np.arange(1, 16 + 1, dtype=float), (4, 4)) / 16
++
++    # This is a 4x4 image sensor.
++    # it tests for all cases I think. middle points, and edge points with 2
++    # neighbors.
++
++    # rggb
++    expected_color_image = np.zeros((4, 4, 3), dtype=bayer_image.dtype)
++    expected_color_image[0::2, 0::2, 0] = bayer_image[0::2, 0::2]
++    expected_color_image[1::2, 0::2, 1] = bayer_image[1::2, 0::2]
++    expected_color_image[0::2, 1::2, 1] = bayer_image[0::2, 1::2]
++    expected_color_image[1::2, 1::2, 2] = bayer_image[1::2, 1::2]
++
++    red = expected_color_image[..., 0]
++    green = expected_color_image[..., 1]
++    blue = expected_color_image[..., 2]
++
++    red[(0, 2), 1] = (red[(0, 2), 0] + red[(0, 2), 2]) / 2
++    red[(0, 2), 3] = red[(0, 2), 2]
++    red[1, :] = (red[0, :] + red[2, :]) / 2
++    red[3, :] = red[2, :]
++
++    blue[(1, 3), 2] = (blue[(1, 3), 1] + blue[(1, 3), 3]) / 2
++    blue[(1, 3), 0] = blue[(1, 3), 1]
++    blue[2, :] = (blue[1, :] + blue[3, :]) / 2
++    blue[0, :] = blue[1, :]
++
++    green[0, 0] = (green[0, 1] + green[1, 0]) / 2
++    green[-1, -1] = (green[-1, -2] + green[-2, -1]) / 2
++    green[0, 2] = green[0, 1] * 0.25 + green[0, 3] * 0.25 + green[1, 2] * 0.5
++    green[2, 0] = green[1, 0] * 0.25 + green[3, 0] * 0.25 + green[2, 1] * 0.5
++    green[-1, 1] = green[-1, 0] * 0.25 + green[-1, 2] * 0.25 + green[-2, 1] * 0.5  # noqa
++    green[1, -1] = green[0, -1] * 0.25 + green[2, -1] * 0.25 + green[1, -2] * 0.5  # noqa
++
++    green[1, 1] = (green[0, 1] + green[1, 0] + green[2, 1] + green[1, 2]) / 4
++    green[2, 2] = (green[1, 2] + green[2, 1] + green[3, 2] + green[2, 3]) / 4
++
++    test_debayer(bayer_image, expected_color_image, 'rggb')
++
++    # bggr
++    red[...], blue[...] = blue.copy(), red.copy()
++    test_debayer(bayer_image, expected_color_image, 'bggr')
++
++    # gbrg
++    expected_color_image = np.zeros((4, 4, 3), dtype=bayer_image.dtype)
++    expected_color_image[0::2, 0::2, 1] = bayer_image[0::2, 0::2]
++    expected_color_image[1::2, 0::2, 0] = bayer_image[1::2, 0::2]
++    expected_color_image[0::2, 1::2, 2] = bayer_image[0::2, 1::2]
++    expected_color_image[1::2, 1::2, 1] = bayer_image[1::2, 1::2]
++
++    red = expected_color_image[..., 0]
++    green = expected_color_image[..., 1]
++    blue = expected_color_image[..., 2]
++
++    red[(1, 3), 1] = (red[(1, 3), 0] + red[(1, 3), 2]) / 2
++    red[(1, 3), 3] = red[(1, 3), 2]
++    red[2, :] = (red[1, :] + red[3, :]) / 2
++    red[0, :] = red[1, :]
++
++    blue[(0, 2), 2] = (blue[(0, 2), 1] + blue[(0, 2), 3]) / 2
++    blue[(0, 2), 0] = blue[(0, 2), 1]
++    blue[1, :] = (blue[0, :] + blue[2, :]) / 2
++    blue[-1, :] = blue[-2, :]
++
++    green[0, -1] = (green[0, -2] + green[1, -1]) / 2
++    green[-1, 0] = (green[-2, 0] + green[-1, 1]) / 2
++    green[0, 1] = green[0, 0] * 0.25 + green[0, 2] * 0.25 + green[1, 1] * 0.5
++    green[1, 0] = green[0, 0] * 0.25 + green[2, 0] * 0.25 + green[1, 1] * 0.5
++
++    green[-1, 2] = green[-1, 1] * 0.25 + green[-1, 3] * 0.25 + green[-2, 2] * 0.5  # noqa
++    green[2, -1] = green[1, -1] * 0.25 + green[3, -1] * 0.25 + green[2, -2] * 0.5  # noqa
++
++    green[2, 1] = (green[1, 1] + green[3, 1] + green[2, 2] + green[2, 0]) * 0.25  # noqa
++    green[1, 2] = (green[1, 1] + green[1, 3] + green[2, 2] + green[0, 2]) * 0.25  # noqa
++
++    test_debayer(bayer_image, expected_color_image, 'gbrg')
++
++    # grbg
++    red[...], blue[...] = blue.copy(), red.copy()
++    test_debayer(bayer_image, expected_color_image, 'grbg')
