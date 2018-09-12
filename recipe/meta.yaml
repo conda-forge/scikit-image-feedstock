@@ -11,7 +11,6 @@ source:
 build:
   number: 1
   script:
-    - rm -f skimage/run-hessian.py
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
     - python -m pip install --no-deps --ignore-installed .
   entry_points:
@@ -51,6 +50,10 @@ test:
     - pytest-cov
   imports:
     - skimage
+  commands:
+    - setx MPLBACKEND "Agg"  # [win]
+    - export MPLBACKEND=Agg  # [unix]
+    - pytest --pyargs skimage
 
 about:
   home: http://scikit-image.org/
