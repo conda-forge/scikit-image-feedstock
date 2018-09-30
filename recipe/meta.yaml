@@ -9,10 +9,10 @@ source:
   sha256: 325f75eb80fbc5371136e37f323445309ca9f65b6c6f718d0d0e2189e5de1224
 
 build:
-  number: 1
+  number: 2
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
-    - python -m pip install --no-deps --ignore-installed .
+    - "{{ PYTHON }} -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv"
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
@@ -27,7 +27,6 @@ requirements:
     - six >=1.7.3
     - numpy 1.11.3
     - scipy >=0.17
-    - numpydoc >=0.6
     - msinttypes  # [win and py<35]
   run:
     - python
@@ -37,17 +36,25 @@ requirements:
     - matplotlib >=2.0.0
     - networkx >=1.8
     - pillow >=4.3.0
-    - dask-core >=0.15
-    - toolz >=0.7.4
     - pywavelets >=0.4.0
-    - dask-core >=0.9.0
     - cloudpickle >=0.2.1
     - imageio >=2.1.0
+    # scikit-image depends on dask-array
+    # which requires numpy, dask-core and toolz (cytoolz for speed)
+    - dask-core >=0.9.0
+    - toolz >=0.7.3
+    - cytoolz >=0.7.3
 
 test:
   requires:
     - pytest
     - pytest-cov
+    # test fail with numpy 1.15 because of strict warnings in tests
+    # this should be fied in 0.14.1
+    - numpy <1.15
+    # pywavelets tests are are designed for 0.X warnings/raises
+    # this should be fixed in 0.14.1
+    - pywavelets <1
   imports:
     - skimage
   commands:
