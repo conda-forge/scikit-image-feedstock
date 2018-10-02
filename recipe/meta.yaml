@@ -9,10 +9,10 @@ source:
   sha256: 86a9b3b4f74f231e0a6bcfd3235dcf3f0118df25dac21201da5e064d681e2c50
 
 build:
-  number: 0
+  number: 1
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
-    - python -m pip install --no-deps --ignore-installed .
+    - "{{ PYTHON }} -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv"
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
@@ -27,7 +27,6 @@ requirements:
     - six >=1.7.3
     - numpy 1.11.3
     - scipy >=0.17
-    - numpydoc >=0.6
     - msinttypes  # [win and py<35]
   run:
     - python
@@ -37,12 +36,14 @@ requirements:
     - matplotlib >=2.0.0
     - networkx >=1.8
     - pillow >=4.3.0
-    - dask-core >=0.15
     - toolz >=0.7.4
     - pywavelets >=0.4.0
     - dask-core >=0.9.0
     - cloudpickle >=0.2.1
     - imageio >=2.1.0
+    # scikit-image depends on dask-array
+    # which requires numpy, dask-core and toolz (cytoolz for speed)
+    - cytoolz >=0.7.3
 
 test:
   requires:
