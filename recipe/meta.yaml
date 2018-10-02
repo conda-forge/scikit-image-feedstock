@@ -1,4 +1,4 @@
-{% set version = "0.14.0" %}
+{% set version = "0.14.1" %}
 
 package:
   name: scikit-image
@@ -6,10 +6,10 @@ package:
 
 source:
   url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
-  sha256: 325f75eb80fbc5371136e37f323445309ca9f65b6c6f718d0d0e2189e5de1224
+  sha256: 86a9b3b4f74f231e0a6bcfd3235dcf3f0118df25dac21201da5e064d681e2c50
 
 build:
-  number: 2
+  number: 0
   script:
     - python -m pip install --no-deps --ignore-installed .
     - export LDFLAGS="-headerpad_max_install_names"  # [osx]
