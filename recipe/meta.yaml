@@ -9,7 +9,7 @@ source:
   sha256: 86a9b3b4f74f231e0a6bcfd3235dcf3f0118df25dac21201da5e064d681e2c50
 
 build:
-  number: 0
+  number: 1000
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
     - python -m pip install --no-deps --ignore-installed .
