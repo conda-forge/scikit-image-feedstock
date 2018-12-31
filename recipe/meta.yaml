@@ -7,9 +7,18 @@ package:
 source:
   url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
   sha256: 86a9b3b4f74f231e0a6bcfd3235dcf3f0118df25dac21201da5e064d681e2c50
+  patches:
+    # https://github.com/scikit-image/scikit-image/pull/3558
+    - 3558_dont_directly_call_test_fixtures.patch
+    # https://github.com/scikit-image/scikit-image/pull/3561
+    # https://github.com/scikit-image/scikit-image/pull/3556
+    - 3561_numpy_1_16_fix.patch
+    # https://github.com/scikit-image/scikit-image/pull/3637
+    # https://github.com/scikit-image/scikit-image/pull/3572
+    - 3637_filter_out_deprecation_pending_warning.patch
 
 build:
-  number: 1001
+  number: 1002
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
     - "{{ PYTHON }} -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv"
@@ -70,3 +79,4 @@ extra:
     - msarahan
     - ocefpaf
     - soupault
+    - hmaarrfk

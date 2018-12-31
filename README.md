@@ -1,6 +1,8 @@
 About scikit-image
 ==================
 
+[![Powered by NumFOCUS](https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A)](http://numfocus.org)
+
 Home: http://scikit-image.org/
 
 Package license: BSD 3-Clause
@@ -104,3 +106,15 @@ In order to produce a uniquely identifiable distribution:
  * If the version of a package **is** being increased, please remember to return
    the [``build/number``](https://conda.io/docs/user-guide/tasks/build-packages/define-metadata.html#build-number-and-string)
    back to 0.
+
+Feedstock Maintainers
+=====================
+
+* [@hmaarrfk](https://github.com/hmaarrfk/)
+* [@ivoflipse](https://github.com/ivoflipse/)
+* [@jakirkham](https://github.com/jakirkham/)
+* [@jni](https://github.com/jni/)
+* [@msarahan](https://github.com/msarahan/)
+* [@ocefpaf](https://github.com/ocefpaf/)
+* [@soupault](https://github.com/soupault/)
+
