@@ -1,0 +1,597 @@
+From 36f146626a0d9de6f72348a6d0efa22cbfc69cf0 Mon Sep 17 00:00:00 2001
+From: Juan Nunez-Iglesias <juan.nunez-iglesias@monash.edu>
+Date: Wed, 1 Aug 2018 10:30:36 +1000
+Subject: [PATCH] Backport #3242: handle NumPy 1.15 warnings in dependencies
+
+---
+ TODO.txt                                      |  10 ++
+ skimage/_shared/_warnings.py                  |   6 +
+ skimage/color/tests/test_colorconv.py         |   3 +-
+ skimage/filters/tests/test_lpi_filter.py      |  46 ++++---
+ skimage/io/tests/test_imageio.py              |   4 +-
+ skimage/measure/tests/test_simple_metrics.py  |   4 +-
+ skimage/restoration/tests/test_denoise.py     | 129 +++++++++++-------
+ .../segmentation/tests/test_random_walker.py  |  60 +++++---
+ skimage/util/tests/test_dtype.py              |   2 +-
+ tools/travis/install_qt.sh                    |   6 +-
+ 10 files changed, 178 insertions(+), 92 deletions(-)
+
+diff --git a/TODO.txt b/TODO.txt
+index d8ed1e0f4d..e2816f8651 100644
+--- a/TODO.txt
++++ b/TODO.txt
+@@ -55,3 +55,13 @@ Other
+   once minimal required ``numpy`` is set to >= 1.14.0.
+ * Remove deprecated ``Hxx, Hxy, Hyy`` API of ``hessian_matrix_eigvals`` in
+   ``skimage.feature.corner``.
++* Monitor when ``matplotlib`` releases a version greater than 2.2.2 and test
++  to see if it becomes compatible with PyQt5.11. If it is compatible,
++  remove the version limiting logic in ``tools/travis/install_qt.sh``.
++* Remove the conditional warning logic when ``numpy`` is set to >= 1.15.0
++  for ``scipy`` and ``pywl`` (``pywavelet``) in ``test_lpi_filter.py`` and
++  ``test_denoise.py`` regarding multidimensional indexing.
++* Remove the conditional warning logic when ``numpy`` is set to >= 1.15.0
++  for sparse matricies (``np.matrix``) used by scipy.sparse in
++  ``test_random_walker.py``. Note that there is also a chance ``scipy.sparse``
++  moves away from using ``np.matrix`` in a future version too.
+diff --git a/skimage/_shared/_warnings.py b/skimage/_shared/_warnings.py
+index e6c43d3220..e16ff34076 100644
+--- a/skimage/_shared/_warnings.py
++++ b/skimage/_shared/_warnings.py
+@@ -105,10 +105,16 @@ def expected_warnings(matching):
+     Finally, you can use `|\A\Z` in a pattern to signify it as optional.
+ 
+     """
++    if isinstance(matching, str):
++        raise ValueError('``matching`` should be a list of strings and not '
++                         'a string itself.')
+     with all_warnings() as w:
+         # enter context
+         yield w
+         # exited user context, check the recorded warnings
++        # Allow users to provide None
++        while None in matching:
++            matching.remove(None)
+         remaining = [m for m in matching if '\A\Z' not in m.split('|')]
+         for warn in w:
+             found = False
+diff --git a/skimage/color/tests/test_colorconv.py b/skimage/color/tests/test_colorconv.py
+index 23d43dc6a9..18a1b1ca5b 100644
+--- a/skimage/color/tests/test_colorconv.py
++++ b/skimage/color/tests/test_colorconv.py
+@@ -193,7 +193,8 @@ def test_hdx_rgb_roundtrip(self):
+         img_rgb = self.img_rgb
+         conv = combine_stains(separate_stains(img_rgb, hdx_from_rgb),
+                               rgb_from_hdx)
+-        assert_equal(img_as_ubyte(conv), img_rgb)
++        with expected_warnings(['precision loss']):
++            assert_equal(img_as_ubyte(conv), img_rgb)
+ 
+     # RGB<->HDX roundtrip with ubyte image
+     def test_hdx_rgb_roundtrip(self):
+diff --git a/skimage/filters/tests/test_lpi_filter.py b/skimage/filters/tests/test_lpi_filter.py
+index 2ace9ddec2..34a87ac0bd 100644
+--- a/skimage/filters/tests/test_lpi_filter.py
++++ b/skimage/filters/tests/test_lpi_filter.py
+@@ -1,10 +1,20 @@
+ import numpy as np
++import scipy
+ from numpy.testing import assert_, assert_equal
+ from skimage._shared import testing
++from distutils.version import LooseVersion as Version
+ import unittest
+ 
+ from skimage import data
+ from skimage.filters import LPIFilter2D, inverse, wiener
++from skimage._shared._warnings import expected_warnings
++
++
++if (Version(np.__version__) >= '1.15.0' and
++        Version(scipy.__version__) <= '1.1.0'):
++    SCIPY_ND_INDEXING_WARNING = 'non-tuple sequence for multidimensional'
++else:
++    SCIPY_ND_INDEXING_WARNING = None
+ 
+ 
+ class TestLPIFilter2D(unittest.TestCase):
+@@ -29,30 +39,32 @@ def test_ip_shape(self):
+             yield (self.tst_shape, self.img[:, c_slice])
+ 
+     def test_inverse(self):
+-        F = self.f(self.img)
+-        g = inverse(F, predefined_filter=self.f)
+-        assert_equal(g.shape, self.img.shape)
++        with expected_warnings([SCIPY_ND_INDEXING_WARNING]):
++            F = self.f(self.img)
++            g = inverse(F, predefined_filter=self.f)
++            assert_equal(g.shape, self.img.shape)
+ 
+-        g1 = inverse(F[::-1, ::-1], predefined_filter=self.f)
+-        assert_((g - g1[::-1, ::-1]).sum() < 55)
++            g1 = inverse(F[::-1, ::-1], predefined_filter=self.f)
++            assert_((g - g1[::-1, ::-1]).sum() < 55)
+ 
+-        # test cache
+-        g1 = inverse(F[::-1, ::-1], predefined_filter=self.f)
+-        assert_((g - g1[::-1, ::-1]).sum() < 55)
++            # test cache
++            g1 = inverse(F[::-1, ::-1], predefined_filter=self.f)
++            assert_((g - g1[::-1, ::-1]).sum() < 55)
+ 
+-        g1 = inverse(F[::-1, ::-1], self.filt_func)
+-        assert_((g - g1[::-1, ::-1]).sum() < 55)
++            g1 = inverse(F[::-1, ::-1], self.filt_func)
++            assert_((g - g1[::-1, ::-1]).sum() < 55)
+ 
+     def test_wiener(self):
+-        F = self.f(self.img)
+-        g = wiener(F, predefined_filter=self.f)
+-        assert_equal(g.shape, self.img.shape)
++        with expected_warnings([SCIPY_ND_INDEXING_WARNING]):
++            F = self.f(self.img)
++            g = wiener(F, predefined_filter=self.f)
++            assert_equal(g.shape, self.img.shape)
+ 
+-        g1 = wiener(F[::-1, ::-1], predefined_filter=self.f)
+-        assert_((g - g1[::-1, ::-1]).sum() < 1)
++            g1 = wiener(F[::-1, ::-1], predefined_filter=self.f)
++            assert_((g - g1[::-1, ::-1]).sum() < 1)
+ 
+-        g1 = wiener(F[::-1, ::-1], self.filt_func)
+-        assert_((g - g1[::-1, ::-1]).sum() < 1)
++            g1 = wiener(F[::-1, ::-1], self.filt_func)
++            assert_((g - g1[::-1, ::-1]).sum() < 1)
+ 
+     def test_non_callable(self):
+         with testing.raises(ValueError):
+diff --git a/skimage/io/tests/test_imageio.py b/skimage/io/tests/test_imageio.py
+index 1234a4f56b..ad81a02ac0 100644
+--- a/skimage/io/tests/test_imageio.py
++++ b/skimage/io/tests/test_imageio.py
+@@ -31,11 +31,11 @@ def teardown():
+ @testing.skipif(not imageio_available, reason="imageio not installed")
+ def test_imageio_flatten():
+     # a color image is flattened (as_gray in .16)
+-    with expected_warnings('`flatten` has been deprecated'):
++    with expected_warnings(['`flatten` has been deprecated']):
+         img = imread(os.path.join(data_dir, 'color.png'), flatten=True)
+     assert img.ndim == 2
+     assert img.dtype == np.float64
+-    with expected_warnings('`flatten` has been deprecated'):
++    with expected_warnings(['`flatten` has been deprecated']):
+         img = imread(os.path.join(data_dir, 'camera.png'), flatten=True)
+     # check that flattening does not occur for an image that is grey already.
+     assert np.sctype2char(img.dtype) in np.typecodes['AllInteger']
+diff --git a/skimage/measure/tests/test_simple_metrics.py b/skimage/measure/tests/test_simple_metrics.py
+index b9946f6a4e..3a1353bef6 100644
+--- a/skimage/measure/tests/test_simple_metrics.py
++++ b/skimage/measure/tests/test_simple_metrics.py
+@@ -43,10 +43,10 @@ def test_PSNR_float():
+ def test_PSNR_dynamic_range_and_data_range():
+     # Tests deprecation of "dynamic_range" in favor of "data_range"
+     out1 = compare_psnr(cam/255., cam_noisy/255., data_range=1)
+-    with expected_warnings(
++    with expected_warnings([
+             '`dynamic_range` has been deprecated in favor of '
+             '`data_range`. The `dynamic_range` keyword argument '
+-            'will be removed in v0.14'):
++            'will be removed in v0.14']):
+         out2 = compare_psnr(cam/255., cam_noisy/255., dynamic_range=1)
+     assert_equal(out1, out2)
+ 
+diff --git a/skimage/restoration/tests/test_denoise.py b/skimage/restoration/tests/test_denoise.py
+index 4ecc611944..fe0c943f06 100644
+--- a/skimage/restoration/tests/test_denoise.py
++++ b/skimage/restoration/tests/test_denoise.py
+@@ -8,7 +8,15 @@
+ from skimage._shared import testing
+ from skimage._shared.testing import (assert_equal, assert_almost_equal,
+                                      assert_warns, assert_)
+-from skimage._shared._warnings import expected_warnings, warnings
++from skimage._shared._warnings import expected_warnings
++from distutils.version import LooseVersion as Version
++
++
++if (Version(np.__version__) >= '1.15.0' and
++        Version(pywt.__version__) <= '0.5.2'):
++    PYWAVELET_ND_INDEXING_WARNING = 'non-tuple sequence for multidimensional'
++else:
++    PYWAVELET_ND_INDEXING_WARNING = None
+ 
+ 
+ np.random.seed(1234)
+@@ -344,17 +352,19 @@ def test_wavelet_denoising():
+         noisy = np.clip(noisy, 0, 1)
+ 
+         # Verify that SNR is improved when true sigma is used
+-        denoised = restoration.denoise_wavelet(noisy, sigma=sigma,
+-                                               multichannel=multichannel,
+-                                               convert2ycbcr=convert2ycbcr)
++        with expected_warnings([PYWAVELET_ND_INDEXING_WARNING]):
++            denoised = restoration.denoise_wavelet(noisy, sigma=sigma,
++                                                   multichannel=multichannel,
++                                                   convert2ycbcr=convert2ycbcr)
+         psnr_noisy = compare_psnr(img, noisy)
+         psnr_denoised = compare_psnr(img, denoised)
+         assert_(psnr_denoised > psnr_noisy)
+ 
+         # Verify that SNR is improved with internally estimated sigma
+-        denoised = restoration.denoise_wavelet(noisy,
+-                                               multichannel=multichannel,
+-                                               convert2ycbcr=convert2ycbcr)
++        with expected_warnings([PYWAVELET_ND_INDEXING_WARNING]):
++            denoised = restoration.denoise_wavelet(noisy,
++                                                   multichannel=multichannel,
++                                                   convert2ycbcr=convert2ycbcr)
+         psnr_noisy = compare_psnr(img, noisy)
+         psnr_denoised = compare_psnr(img, denoised)
+         assert_(psnr_denoised > psnr_noisy)
+@@ -369,10 +379,12 @@ def test_wavelet_denoising():
+         assert_(psnr_denoised_1 > psnr_noisy)
+ 
+         # Test changing noise_std (higher threshold, so less energy in signal)
+-        res1 = restoration.denoise_wavelet(noisy, sigma=2*sigma,
+-                                           multichannel=multichannel)
+-        res2 = restoration.denoise_wavelet(noisy, sigma=sigma,
+-                                           multichannel=multichannel)
++        with expected_warnings([PYWAVELET_ND_INDEXING_WARNING]):
++            res1 = restoration.denoise_wavelet(noisy, sigma=2 * sigma,
++                                               multichannel=multichannel)
++        with expected_warnings([PYWAVELET_ND_INDEXING_WARNING]):
++            res2 = restoration.denoise_wavelet(noisy, sigma=sigma,
++                                               multichannel=multichannel)
+         assert_(np.sum(res1**2) <= np.sum(res2**2))
+ 
+ 
+@@ -385,8 +397,9 @@ def test_wavelet_threshold():
+     noisy = np.clip(noisy, 0, 1)
+ 
+     # employ a single, user-specified threshold instead of BayesShrink sigmas
+-    denoised = _wavelet_threshold(noisy, wavelet='db1', method=None,
+-                                  threshold=sigma)
++    with expected_warnings([PYWAVELET_ND_INDEXING_WARNING]):
++        denoised = _wavelet_threshold(noisy, wavelet='db1', method=None,
++                                      threshold=sigma)
+     psnr_noisy = compare_psnr(img, noisy)
+     psnr_denoised = compare_psnr(img, denoised)
+     assert_(psnr_denoised > psnr_noisy)
+@@ -396,7 +409,7 @@ def test_wavelet_threshold():
+         _wavelet_threshold(noisy, wavelet='db1', method=None, threshold=None)
+ 
+     # warns if a threshold is provided in a case where it would be ignored
+-    with expected_warnings(["Thresholding method "]):
++    with expected_warnings(["Thresholding method ", PYWAVELET_ND_INDEXING_WARNING]):
+         _wavelet_threshold(noisy, wavelet='db1', method='BayesShrink',
+                            threshold=sigma)
+ 
+@@ -416,8 +429,17 @@ def test_wavelet_denoising_nd():
+             noisy = img + sigma * rstate.randn(*(img.shape))
+             noisy = np.clip(noisy, 0, 1)
+ 
+-            # Verify that SNR is improved with internally estimated sigma
+-            denoised = restoration.denoise_wavelet(noisy, method=method)
++            # Mark H. 2018.08:
++            #   The issue arises because when ndim in [1, 2]
++            #   ``waverecn`` calls ``_match_coeff_dims``
++            #   Which includes a numpy 1.15 deprecation.
++            #   for larger number of dimensions _match_coeff_dims isn't called
++            #   for some reason.
++            anticipated_warnings = (PYWAVELET_ND_INDEXING_WARNING
++                                    if ndim < 3 else None)
++            with expected_warnings([anticipated_warnings]):
++                # Verify that SNR is improved with internally estimated sigma
++                denoised = restoration.denoise_wavelet(noisy, method=method)
+             psnr_noisy = compare_psnr(img, noisy)
+             psnr_denoised = compare_psnr(img, denoised)
+             assert_(psnr_denoised > psnr_noisy)
+@@ -441,7 +463,8 @@ def test_wavelet_denoising_levels():
+     noisy = img + sigma * rstate.randn(*(img.shape))
+     noisy = np.clip(noisy, 0, 1)
+ 
+-    denoised = restoration.denoise_wavelet(noisy, wavelet=wavelet)
++    with expected_warnings([PYWAVELET_ND_INDEXING_WARNING]):
++        denoised = restoration.denoise_wavelet(noisy, wavelet=wavelet)
+     denoised_1 = restoration.denoise_wavelet(noisy, wavelet=wavelet,
+                                              wavelet_levels=1)
+     psnr_noisy = compare_psnr(img, noisy)
+@@ -455,13 +478,14 @@ def test_wavelet_denoising_levels():
+     max_level = pywt.dwt_max_level(np.min(img.shape),
+                                    pywt.Wavelet(wavelet).dec_len)
+     with testing.raises(ValueError):
+-        restoration.denoise_wavelet(
+-            noisy,
+-            wavelet=wavelet, wavelet_levels=max_level+1)
++        with expected_warnings([PYWAVELET_ND_INDEXING_WARNING]):
++            restoration.denoise_wavelet(
++                noisy, wavelet=wavelet, wavelet_levels=max_level + 1)
+     with testing.raises(ValueError):
+-        restoration.denoise_wavelet(
+-            noisy,
+-            wavelet=wavelet, wavelet_levels=-1)
++        with expected_warnings([PYWAVELET_ND_INDEXING_WARNING]):
++            restoration.denoise_wavelet(
++                noisy,
++                wavelet=wavelet, wavelet_levels=-1)
+ 
+ 
+ def test_estimate_sigma_gray():
+@@ -525,13 +549,16 @@ def test_wavelet_denoising_args():
+ 
+     for convert2ycbcr in [True, False]:
+         for multichannel in [True, False]:
++            anticipated_warnings = (PYWAVELET_ND_INDEXING_WARNING
++                                    if multichannel else None)
+             for sigma in [0.1, [0.1, 0.1, 0.1], None]:
+                 if (not multichannel and not convert2ycbcr) or \
+                         (isinstance(sigma, list) and not multichannel):
+                     continue
+-                restoration.denoise_wavelet(noisy, sigma=sigma,
+-                                            convert2ycbcr=convert2ycbcr,
+-                                            multichannel=multichannel)
++                with expected_warnings([anticipated_warnings]):
++                    restoration.denoise_wavelet(noisy, sigma=sigma,
++                                                convert2ycbcr=convert2ycbcr,
++                                                multichannel=multichannel)
+ 
+ 
+ def test_multichannel_warnings():
+@@ -568,26 +595,29 @@ def test_cycle_spinning_multichannel():
+         func_kw = dict(sigma=sigma, multichannel=multichannel)
+ 
+         # max_shifts=0 is equivalent to just calling denoise_func
+-        dn_cc = restoration.cycle_spin(noisy, denoise_func, max_shifts=0,
+-                                       func_kw=func_kw,
+-                                       multichannel=multichannel)
+-        dn = denoise_func(noisy, **func_kw)
++        with expected_warnings([PYWAVELET_ND_INDEXING_WARNING]):
++            dn_cc = restoration.cycle_spin(noisy, denoise_func, max_shifts=0,
++                                           func_kw=func_kw,
++                                           multichannel=multichannel)
++            dn = denoise_func(noisy, **func_kw)
+         assert_equal(dn, dn_cc)
+ 
+         # denoising with cycle spinning will give better PSNR than without
+         for max_shifts in valid_shifts:
+-            dn_cc = restoration.cycle_spin(noisy, denoise_func,
+-                                           max_shifts=max_shifts,
+-                                           func_kw=func_kw,
+-                                           multichannel=multichannel)
++            with expected_warnings([PYWAVELET_ND_INDEXING_WARNING]):
++                dn_cc = restoration.cycle_spin(noisy, denoise_func,
++                                               max_shifts=max_shifts,
++                                               func_kw=func_kw,
++                                               multichannel=multichannel)
+             assert_(compare_psnr(img, dn_cc) > compare_psnr(img, dn))
+ 
+         for shift_steps in valid_steps:
+-            dn_cc = restoration.cycle_spin(noisy, denoise_func,
+-                                           max_shifts=2,
+-                                           shift_steps=shift_steps,
+-                                           func_kw=func_kw,
+-                                           multichannel=multichannel)
++            with expected_warnings([PYWAVELET_ND_INDEXING_WARNING]):
++                dn_cc = restoration.cycle_spin(noisy, denoise_func,
++                                               max_shifts=2,
++                                               shift_steps=shift_steps,
++                                               func_kw=func_kw,
++                                               multichannel=multichannel)
+             assert_(compare_psnr(img, dn_cc) > compare_psnr(img, dn))
+ 
+         for max_shifts in invalid_shifts:
+@@ -614,16 +644,17 @@ def test_cycle_spinning_num_workers():
+     denoise_func = restoration.denoise_wavelet
+     func_kw = dict(sigma=sigma, multichannel=True)
+ 
+-    # same result whether using 1 worker or multiple workers
+-    dn_cc1 = restoration.cycle_spin(noisy, denoise_func, max_shifts=1,
+-                                    func_kw=func_kw, multichannel=False,
+-                                    num_workers=1)
+-    dn_cc2 = restoration.cycle_spin(noisy, denoise_func, max_shifts=1,
+-                                    func_kw=func_kw, multichannel=False,
+-                                    num_workers=4)
+-    dn_cc3 = restoration.cycle_spin(noisy, denoise_func, max_shifts=1,
+-                                    func_kw=func_kw, multichannel=False,
+-                                    num_workers=None)
++    with expected_warnings([PYWAVELET_ND_INDEXING_WARNING]):
++        # same result whether using 1 worker or multiple workers
++        dn_cc1 = restoration.cycle_spin(noisy, denoise_func, max_shifts=1,
++                                        func_kw=func_kw, multichannel=False,
++                                        num_workers=1)
++        dn_cc2 = restoration.cycle_spin(noisy, denoise_func, max_shifts=1,
++                                        func_kw=func_kw, multichannel=False,
++                                        num_workers=4)
++        dn_cc3 = restoration.cycle_spin(noisy, denoise_func, max_shifts=1,
++                                        func_kw=func_kw, multichannel=False,
++                                        num_workers=None)
+     assert_almost_equal(dn_cc1, dn_cc2)
+     assert_almost_equal(dn_cc1, dn_cc3)
+ 
+diff --git a/skimage/segmentation/tests/test_random_walker.py b/skimage/segmentation/tests/test_random_walker.py
+index f71b49b3ed..3756d44e30 100644
+--- a/skimage/segmentation/tests/test_random_walker.py
++++ b/skimage/segmentation/tests/test_random_walker.py
+@@ -3,13 +3,22 @@
+ from skimage.transform import resize
+ from skimage._shared._warnings import expected_warnings
+ from skimage._shared import testing
++import scipy
++import numpy as np
++from distutils.version import LooseVersion as Version
+ 
+ 
+ # older versions of scipy raise a warning with new NumPy because they use
+ # numpy.rank() instead of arr.ndim or numpy.linalg.matrix_rank.
+-SCIPY_EXPECTED = 'numpy.linalg.matrix_rank|\A\Z'
+-PYAMG_EXPECTED_WARNING = 'pyamg|\A\Z'
+-PYAMG_SCIPY_EXPECTED = SCIPY_EXPECTED + '|' + PYAMG_EXPECTED_WARNING
++SCIPY_RANK_WARNING = r'numpy.linalg.matrix_rank|\A\Z'
++PYAMG_MISSING_WARNING = r'pyamg|\A\Z'
++PYAMG_OR_SCIPY_WARNING = SCIPY_RANK_WARNING + '|' + PYAMG_MISSING_WARNING
++
++if (Version(np.__version__) >= '1.15.0' and
++        Version(scipy.__version__) <= '1.1.0'):
++    NUMPY_MATRIX_WARNING = 'matrix subclass'
++else:
++    NUMPY_MATRIX_WARNING = None
+ 
+ 
+ def make_2d_syntheticdata(lx, ly=None):
+@@ -83,11 +92,13 @@ def test_2d_cg():
+     lx = 70
+     ly = 100
+     data, labels = make_2d_syntheticdata(lx, ly)
+-    with expected_warnings(['"cg" mode' + '|' + SCIPY_EXPECTED]):
++    with expected_warnings(['"cg" mode' + '|' + SCIPY_RANK_WARNING,
++                            NUMPY_MATRIX_WARNING]):
+         labels_cg = random_walker(data, labels, beta=90, mode='cg')
+     assert (labels_cg[25:45, 40:60] == 2).all()
+     assert data.shape == labels.shape
+-    with expected_warnings(['"cg" mode' + '|' + SCIPY_EXPECTED]):
++    with expected_warnings(['"cg" mode' + '|' + SCIPY_RANK_WARNING,
++                            NUMPY_MATRIX_WARNING]):
+         full_prob = random_walker(data, labels, beta=90, mode='cg',
+                                   return_full_prob=True)
+     assert (full_prob[1, 25:45, 40:60] >=
+@@ -100,14 +111,16 @@ def test_2d_cg_mg():
+     lx = 70
+     ly = 100
+     data, labels = make_2d_syntheticdata(lx, ly)
+-    expected = 'scipy.sparse.sparsetools|%s' % PYAMG_SCIPY_EXPECTED
+-    with expected_warnings([expected]):
++    anticipated_warnings = [
++        'scipy.sparse.sparsetools|%s' % PYAMG_OR_SCIPY_WARNING,
++        NUMPY_MATRIX_WARNING]
++    with expected_warnings(anticipated_warnings):
+         labels_cg_mg = random_walker(data, labels, beta=90, mode='cg_mg')
+     assert (labels_cg_mg[25:45, 40:60] == 2).all()
+     assert data.shape == labels.shape
+-    with expected_warnings([expected]):
++    with expected_warnings(anticipated_warnings):
+         full_prob = random_walker(data, labels, beta=90, mode='cg_mg',
+-                              return_full_prob=True)
++                                  return_full_prob=True)
+     assert (full_prob[1, 25:45, 40:60] >=
+             full_prob[0, 25:45, 40:60]).all()
+     assert data.shape == labels.shape
+@@ -120,7 +133,7 @@ def test_types():
+     data, labels = make_2d_syntheticdata(lx, ly)
+     data = 255 * (data - data.min()) // (data.max() - data.min())
+     data = data.astype(np.uint8)
+-    with expected_warnings([PYAMG_SCIPY_EXPECTED]):
++    with expected_warnings([PYAMG_OR_SCIPY_WARNING, NUMPY_MATRIX_WARNING]):
+         labels_cg_mg = random_walker(data, labels, beta=90, mode='cg_mg')
+     assert (labels_cg_mg[25:45, 40:60] == 2).all()
+     assert data.shape == labels.shape
+@@ -154,7 +167,8 @@ def test_3d():
+     n = 30
+     lx, ly, lz = n, n, n
+     data, labels = make_3d_syntheticdata(lx, ly, lz)
+-    with expected_warnings(['"cg" mode' + '|' + SCIPY_EXPECTED]):
++    with expected_warnings(['"cg" mode' + '|' + SCIPY_RANK_WARNING,
++                            NUMPY_MATRIX_WARNING]):
+         labels = random_walker(data, labels, mode='cg')
+     assert (labels.reshape(data.shape)[13:17, 13:17, 13:17] == 2).all()
+     assert data.shape == labels.shape
+@@ -168,7 +182,8 @@ def test_3d_inactive():
+     old_labels = np.copy(labels)
+     labels[5:25, 26:29, 26:29] = -1
+     after_labels = np.copy(labels)
+-    with expected_warnings(['"cg" mode|CObject type' + '|' + SCIPY_EXPECTED]):
++    with expected_warnings(['"cg" mode|CObject type' + '|' + SCIPY_RANK_WARNING,
++                            NUMPY_MATRIX_WARNING]):
+         labels = random_walker(data, labels, mode='cg')
+     assert (labels.reshape(data.shape)[13:17, 13:17, 13:17] == 2).all()
+     assert data.shape == labels.shape
+@@ -179,11 +194,13 @@ def test_multispectral_2d():
+     lx, ly = 70, 100
+     data, labels = make_2d_syntheticdata(lx, ly)
+     data = data[..., np.newaxis].repeat(2, axis=-1)  # Expect identical output
+-    with expected_warnings(['"cg" mode' + '|' + SCIPY_EXPECTED]):
++    with expected_warnings(['"cg" mode' + '|' + SCIPY_RANK_WARNING,
++                            NUMPY_MATRIX_WARNING]):
+         multi_labels = random_walker(data, labels, mode='cg',
+                                      multichannel=True)
+     assert data[..., 0].shape == labels.shape
+-    with expected_warnings(['"cg" mode' + '|' + SCIPY_EXPECTED]):
++    with expected_warnings(['"cg" mode' + '|' + SCIPY_RANK_WARNING,
++                            NUMPY_MATRIX_WARNING]):
+         single_labels = random_walker(data[..., 0], labels, mode='cg')
+     assert (multi_labels.reshape(labels.shape)[25:45, 40:60] == 2).all()
+     assert data[..., 0].shape == labels.shape
+@@ -195,11 +212,13 @@ def test_multispectral_3d():
+     lx, ly, lz = n, n, n
+     data, labels = make_3d_syntheticdata(lx, ly, lz)
+     data = data[..., np.newaxis].repeat(2, axis=-1)  # Expect identical output
+-    with expected_warnings(['"cg" mode' + '|' + SCIPY_EXPECTED]):
++    with expected_warnings(['"cg" mode' + '|' + SCIPY_RANK_WARNING,
++                            NUMPY_MATRIX_WARNING]):
+         multi_labels = random_walker(data, labels, mode='cg',
+                                      multichannel=True)
+     assert data[..., 0].shape == labels.shape
+-    with expected_warnings(['"cg" mode' + '|' + SCIPY_EXPECTED]):
++    with expected_warnings(['"cg" mode' + '|' + SCIPY_RANK_WARNING,
++                            NUMPY_MATRIX_WARNING]):
+         single_labels = random_walker(data[..., 0], labels, mode='cg')
+     assert (multi_labels.reshape(labels.shape)[13:17, 13:17, 13:17] == 2).all()
+     assert (single_labels.reshape(labels.shape)[13:17, 13:17, 13:17] == 2).all()
+@@ -228,7 +247,8 @@ def test_spacing_0():
+                  lz // 4 - small_l // 8] = 2
+ 
+     # Test with `spacing` kwarg
+-    with expected_warnings(['"cg" mode' + '|' + SCIPY_EXPECTED]):
++    with expected_warnings(['"cg" mode' + '|' + SCIPY_RANK_WARNING,
++                            NUMPY_MATRIX_WARNING]):
+         labels_aniso = random_walker(data_aniso, labels_aniso, mode='cg',
+                                      spacing=(1., 1., 0.5))
+ 
+@@ -258,7 +278,8 @@ def test_spacing_1():
+ 
+     # Test with `spacing` kwarg
+     # First, anisotropic along Y
+-    with expected_warnings(['"cg" mode' + '|' + SCIPY_EXPECTED]):
++    with expected_warnings(['"cg" mode' + '|' + SCIPY_RANK_WARNING,
++                            NUMPY_MATRIX_WARNING]):
+         labels_aniso = random_walker(data_aniso, labels_aniso, mode='cg',
+                                      spacing=(1., 2., 1.))
+     assert (labels_aniso[13:17, 26:34, 13:17] == 2).all()
+@@ -280,7 +301,8 @@ def test_spacing_1():
+                   lz // 2 - small_l // 4] = 2
+ 
+     # Anisotropic along X
+-    with expected_warnings(['"cg" mode' + '|' + SCIPY_EXPECTED]):
++    with expected_warnings(['"cg" mode' + '|' + SCIPY_RANK_WARNING,
++                            NUMPY_MATRIX_WARNING]):
+         labels_aniso2 = random_walker(data_aniso,
+                                       labels_aniso2,
+                                       mode='cg', spacing=(2., 1., 1.))
+diff --git a/skimage/util/tests/test_dtype.py b/skimage/util/tests/test_dtype.py
+index 344a852721..f5451eaba7 100644
+--- a/skimage/util/tests/test_dtype.py
++++ b/skimage/util/tests/test_dtype.py
+@@ -82,7 +82,7 @@ def test_range_extra_dtypes(dtype_in, dt):
+ 
+ def test_downcast():
+     x = np.arange(10).astype(np.uint64)
+-    with expected_warnings('Downcasting'):
++    with expected_warnings(['Downcasting']):
+         y = img_as_int(x)
+     assert np.allclose(y, x.astype(np.int16))
+     assert y.dtype == np.int16, y.dtype
+diff --git a/tools/travis/install_qt.sh b/tools/travis/install_qt.sh
+index 55b4c39021..f56325f89e 100755
+--- a/tools/travis/install_qt.sh
++++ b/tools/travis/install_qt.sh
+@@ -27,8 +27,12 @@ elif [[ "${QT}" == "PySide" ]]; then
+     python ~/venv/bin/pyside_postinstall.py -install
+     MPL_QT_API=PySide
+     export QT_API=pyside
++# Now configure Matplotlib to use Qt5
+ elif [[ "${QT}" == "PyQt5" ]]; then
+-    pip install --retries 3 -q $PIP_FLAGS pyqt5
++    # Matplotlib 2.2.2 doesn't support pyqt5 5.11 until this commit
++    # https://github.com/matplotlib/matplotlib/commit/260e6d611afae9adaac528c28a4879097c357b74#diff-025508b6963efcfa97ba27389f2d2b86
++    # becomes released
++    pip install --retries 3 -q $PIP_FLAGS 'pyqt5<5.11'
+     MPL_QT_API=PyQt5
+     export QT_API=pyqt5
+ elif [[ "${QT}" == "PySide2" ]]; then

@@ -1,0 +1,61 @@
+From d473f06d5e0ece68642390aea491b818ae0d3063 Mon Sep 17 00:00:00 2001
+From: Juan Nunez-Iglesias <juan.nunez-iglesias@monash.edu>
+Date: Mon, 19 Nov 2018 17:47:19 +1100
+Subject: [PATCH] Backport PR #3458: TST: don't use the pytest.fixtures
+ decorator anymore in class fixtures
+
+---
+ skimage/filters/tests/test_lpi_filter.py | 1 -
+ skimage/io/tests/test_collection.py      | 1 -
+ skimage/io/tests/test_multi_image.py     | 1 -
+ skimage/morphology/tests/test_grey.py    | 1 -
+ 4 files changed, 4 deletions(-)
+
+diff --git a/skimage/filters/tests/test_lpi_filter.py b/skimage/filters/tests/test_lpi_filter.py
+index 34a87ac0bd..90043b34dc 100644
+--- a/skimage/filters/tests/test_lpi_filter.py
++++ b/skimage/filters/tests/test_lpi_filter.py
+@@ -23,7 +23,6 @@ class TestLPIFilter2D(unittest.TestCase):
+     def filt_func(self, r, c):
+         return np.exp(-np.hypot(r, c) / 1)
+ 
+-    @testing.fixture(autouse=True)
+     def setUp(self):
+         self.f = LPIFilter2D(self.filt_func)
+ 
+diff --git a/skimage/io/tests/test_collection.py b/skimage/io/tests/test_collection.py
+index a56d3e4855..c0b36e2a71 100644
+--- a/skimage/io/tests/test_collection.py
++++ b/skimage/io/tests/test_collection.py
+@@ -32,7 +32,6 @@ class TestImageCollection(TestCase):
+     pattern_matched = [os.path.join(data_dir, pic)
+                        for pic in ['camera.png', 'moon.png']]
+ 
+-    @testing.fixture(autouse=True)
+     def setUp(self):
+         reset_plugins()
+         # Generic image collection with images of different shapes.
+diff --git a/skimage/io/tests/test_multi_image.py b/skimage/io/tests/test_multi_image.py
+index fd2bf5cd97..dd3b291850 100644
+--- a/skimage/io/tests/test_multi_image.py
++++ b/skimage/io/tests/test_multi_image.py
+@@ -11,7 +11,6 @@
+ 
+ 
+ class TestMultiImage(TestCase):
+-    @testing.fixture(autouse=True)
+     def setUp(self):
+         # This multipage TIF file was created with imagemagick:
+         # convert im1.tif im2.tif -adjoin multipage.tif
+diff --git a/skimage/morphology/tests/test_grey.py b/skimage/morphology/tests/test_grey.py
+index 8f233dd8e2..7bb34501fc 100644
+--- a/skimage/morphology/tests/test_grey.py
++++ b/skimage/morphology/tests/test_grey.py
+@@ -50,7 +50,6 @@ def test_gray_morphology(self):
+ 
+ 
+ class TestEccentricStructuringElements(TestCase):
+-    @testing.fixture(autouse=True)
+     def setUp(self):
+         self.black_pixel = 255 * np.ones((4, 4), dtype=np.uint8)
+         self.black_pixel[1, 1] = 0
