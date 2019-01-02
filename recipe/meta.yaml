@@ -38,7 +38,7 @@ requirements:
     - pip
     - cython >=0.23
     - six >=1.7.3
-    - numpy 1.11.3
+    - numpy 1.11
     - scipy >=0.17
     - msinttypes  # [win and py<35]
   run:
