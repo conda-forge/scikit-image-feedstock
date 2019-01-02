@@ -18,10 +18,14 @@ source:
     - 3637_filter_out_deprecation_pending_warning.patch
 
 build:
-  number: 1002
+  number: 1003
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
-    - "{{ PYTHON }} -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv"
+    - "{{ PYTHON }} -m pip install . --disable-pip-version-check --no-deps --ignore-installed --no-cache-dir --no-build-isolation -vvv"
+    # @conda-forge/python, try building this package yourself on windows using the line below
+    # you should notice that pip contacts pypi and fetches the dependencies from pypi.org
+    # but only on windows
+    # - "{{ PYTHON }} -m pip install . --disable-pip-version-check --no-deps --ignore-installed --no-cache-dir -vvv"
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
