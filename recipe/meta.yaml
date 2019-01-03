@@ -19,6 +19,10 @@ source:
 
 build:
   number: 1003
+  # For now, I just want to build 2 builds, python 3.6 and python 3.7
+  # remember to remove these lines when merging
+  skip: True  # [not win]
+  skip: True  # [win and py27]
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
     - "{{ PYTHON }} -m pip install . --disable-pip-version-check --no-deps --ignore-installed --no-cache-dir --no-build-isolation -vvv"
