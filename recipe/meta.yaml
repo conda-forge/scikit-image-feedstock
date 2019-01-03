@@ -18,7 +18,7 @@ source:
     - 3637_filter_out_deprecation_pending_warning.patch
 
 build:
-  number: 1003
+  number: 1004
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
     - "{{ PYTHON }} -m pip install . --disable-pip-version-check --no-deps --ignore-installed --no-cache-dir --no-build-isolation -vvv"
