@@ -20,6 +20,7 @@ source:
 
 build:
   number: 1004
+  skip: true  # [not win]
   script:
     - set -ex  # [unix]
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
