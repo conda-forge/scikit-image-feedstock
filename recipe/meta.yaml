@@ -5,8 +5,11 @@ package:
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
-  sha256: 86a9b3b4f74f231e0a6bcfd3235dcf3f0118df25dac21201da5e064d681e2c50
+  # url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
+  # sha256: 86a9b3b4f74f231e0a6bcfd3235dcf3f0118df25dac21201da5e064d681e2c50
+  url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
+  fn: scikit-image-{{ version }}.tar.gz
+  sha256: 8da6fb09aeefb757735c510650ac0072be3831fa76d9747285f3c6ea1e0c5a08
   patches:
     # https://github.com/scikit-image/scikit-image/pull/3558
     - 3558_dont_directly_call_test_fixtures.patch
