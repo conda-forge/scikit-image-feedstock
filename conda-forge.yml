@@ -6,10 +6,10 @@ max_r_ver: '35'
 travis:
   secure: {BINSTAR_TOKEN: KNzzMrzSSGiXvy81LmLDNc1z8E4iq1gdgCLbCLu66zm9E9N1pZmNR/gXpDQcehpUkgn3bI/pOFllxPcvwZp27Aut6WceDOcrFjtRDFz9CpCyl67tuRk3baGzQO3CpD4sMuauKSnRPkIRVtJTYMdnwkYFhAXI4Qk/IbE5WuuEKBWT0AV4v9dEz5uUBSyQdE3PrV9R18Y00WV7rPE579QAh1dfTGkrmdXi8R2zNlUuUfVyKGSxh7c3+7P3+apK1Kwoz4CiPIGv+MgO2ZqreYCc5OvqnPkPeeAumfATwJ2lKNXBOuLuOFOzdRpvMCSXYiMB194uTDS4LFLKLfVnXNirJfEUZ+EWQKvI/8An4lUEAdpwqzOjnk1WXprtWDFNPwS7tSjTi+u+iTF46QoqFHz2PrJFjSCSHfs3Bj4WqfEygRLjaGXTevuhT+By5evHheoXcDK7btnSCfVijdyx10qCd64gGXMSKfeH+BDObTUOnUM46ZiwDEjUIJnvPaQWrrJGAQrJvK95z+Rpcxh/0sRz4lhOp2gha+1QmGiMdSEQiPmB8PxAAtrf5hiDsdB/9Yj4RYzia8BmxLUMEXATVGZUITTufhmqOlKPrReUnOk87swFkjDbuKc54ydaYLT4PEOAAftmpGoDtQApMKvJ4HV1FmPlcpEBFHx4NS3tVk2q8Ik=}
 
-provider:
-  win: azure
+# provider:
+#   win: azure
 
-azure:
-  upload_packages: True
-  # I only want azure to build and upload windows
-  force: False
+# azure:
+#   upload_packages: True
+#   # I only want azure to build and upload windows
+#   force: False
