@@ -22,6 +22,7 @@ build:
   number: 1004
   skip: true  # [not win]
   script:
+    - @echo on  # [win]
     - set -ex  # [unix]
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
     - rm pyproject.toml
