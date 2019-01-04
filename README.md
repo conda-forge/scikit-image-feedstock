@@ -18,6 +18,7 @@ Current build status
 
 [![Linux](https://img.shields.io/circleci/project/github/conda-forge/scikit-image-feedstock/master.svg?label=Linux)](https://circleci.com/gh/conda-forge/scikit-image-feedstock)
 [![OSX](https://img.shields.io/travis/conda-forge/scikit-image-feedstock/master.svg?label=macOS)](https://travis-ci.org/conda-forge/scikit-image-feedstock)
+[![Windows](https://img.shields.io/appveyor/ci/conda-forge/scikit-image-feedstock/master.svg?label=Windows)](https://ci.appveyor.com/project/conda-forge/scikit-image-feedstock/branch/master)
 
 Current release info
 ====================
