@@ -21,7 +21,7 @@ build:
   number: 1004
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
-    - {{ python }} setup.py install --no-deps
+    - {{ PYTHON }} setup.py install --no-deps
     # - "{{ PYTHON }} -m pip install . --disable-pip-version-check --no-deps --ignore-installed --no-cache-dir --no-build-isolation -vvv"
     # @conda-forge/python, try building this package yourself on windows using the line below
     # you should notice that pip contacts pypi and fetches the dependencies from pypi.org
