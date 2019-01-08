@@ -5,11 +5,13 @@ package:
   version: {{ version }}
 
 source:
-  # url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
-  # sha256: 86a9b3b4f74f231e0a6bcfd3235dcf3f0118df25dac21201da5e064d681e2c50
-  url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
-  fn: scikit-image-{{ version }}.tar.gz
-  sha256: 8da6fb09aeefb757735c510650ac0072be3831fa76d9747285f3c6ea1e0c5a08
+  # pypi sources include the cythonized files.
+  url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
+  sha256: 86a9b3b4f74f231e0a6bcfd3235dcf3f0118df25dac21201da5e064d681e2c50
+  # Github sources don't include the cythonized files
+  # url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
+  # fn: scikit-image-{{ version }}.tar.gz
+  # sha256: 8da6fb09aeefb757735c510650ac0072be3831fa76d9747285f3c6ea1e0c5a08
   patches:
     # https://github.com/scikit-image/scikit-image/pull/3558
     - 3558_dont_directly_call_test_fixtures.patch
@@ -23,18 +25,19 @@ source:
 
 build:
   number: 1004
-  skip: true  # [not win]
   script:
-    - echo on  # [win]
-    - set -ex  # [unix]
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
+    ########################################################
+    # Remove these two lines at your own risk.
+    #
+    # pyproject.toml was getting detected by pip, and scikit-image was being built with modern numpy, not 1.11
     - rm pyproject.toml
+    # I have no idea what this line actually fixes (other than speeding up the build a little bit)
+    # I think windows was freaking out about path lengths, and maybe this fixed it???
+    # https://github.com/conda-forge/scikit-image-feedstock/pull/39
     - "{{ PYTHON }} setup.py build_ext -j2"
+    ########################################################
     - "{{ PYTHON }} -m pip install . --disable-pip-version-check --no-deps --ignore-installed --no-cache-dir --no-build-isolation -vvv"
-    # @conda-forge/python, try building this package yourself on windows using the line below
-    # you should notice that pip contacts pypi and fetches the dependencies from pypi.org
-    # but only on windows
-    # - "{{ PYTHON }} -m pip install . --disable-pip-version-check --no-deps --ignore-installed --no-cache-dir -vvv"
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
