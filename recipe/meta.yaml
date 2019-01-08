@@ -74,6 +74,7 @@ test:
   requires:
     - pytest
     - pytest-cov
+    - numpy 1.11
   imports:
     - skimage
   commands:
