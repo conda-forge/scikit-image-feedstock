@@ -1,4 +1,4 @@
-{% set version = "0.14.1" %}
+{% set version = "0.14.2" %}
 
 package:
   name: scikit-image
@@ -7,7 +7,7 @@ package:
 source:
   # pypi sources include the cythonized files.
   url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
-  sha256: 86a9b3b4f74f231e0a6bcfd3235dcf3f0118df25dac21201da5e064d681e2c50
+  sha256: 1afd0b84eefd77afd1071c5c1c402553d67be2d7db8950b32d6f773f25850c1f
   # Github sources don't include the cythonized files
   # url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
   # fn: scikit-image-{{ version }}.tar.gz
@@ -24,7 +24,7 @@ source:
 
 
 build:
-  number: 1004
+  number: 0
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
     ########################################################
