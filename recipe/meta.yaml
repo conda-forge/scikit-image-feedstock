@@ -6,8 +6,9 @@ package:
 
 source:
   # pypi sources include the cythonized files. Github doesn't
-  url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
-  sha256: 1afd0b84eefd77afd1071c5c1c402553d67be2d7db8950b32d6f773f25850c1f
+  # url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
+  # sha256: 1afd0b84eefd77afd1071c5c1c402553d67be2d7db8950b32d6f773f25850c1f
+  url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
 
 build:
   number: 0
