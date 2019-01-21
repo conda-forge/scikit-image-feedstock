@@ -1,30 +1,15 @@
-{% set version = "0.14.1" %}
+{% set version = "0.14.2" %}
 
 package:
   name: scikit-image
   version: {{ version }}
 
 source:
-  # pypi sources include the cythonized files.
   url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
-  sha256: 86a9b3b4f74f231e0a6bcfd3235dcf3f0118df25dac21201da5e064d681e2c50
-  # Github sources don't include the cythonized files
-  # url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
-  # fn: scikit-image-{{ version }}.tar.gz
-  # sha256: 8da6fb09aeefb757735c510650ac0072be3831fa76d9747285f3c6ea1e0c5a08
-  patches:
-    # https://github.com/scikit-image/scikit-image/pull/3558
-    - 3558_dont_directly_call_test_fixtures.patch
-    # https://github.com/scikit-image/scikit-image/pull/3561
-    # https://github.com/scikit-image/scikit-image/pull/3556
-    - 3561_numpy_1_16_fix.patch
-    # https://github.com/scikit-image/scikit-image/pull/3637
-    # https://github.com/scikit-image/scikit-image/pull/3572
-    - 3637_filter_out_deprecation_pending_warning.patch
-
+  sha256: 1afd0b84eefd77afd1071c5c1c402553d67be2d7db8950b32d6f773f25850c1f
 
 build:
-  number: 1004
+  number: 0
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
     ########################################################
@@ -37,7 +22,8 @@ build:
     # https://github.com/conda-forge/scikit-image-feedstock/pull/39
     - "{{ PYTHON }} setup.py build_ext -j2"
     ########################################################
-    - "{{ PYTHON }} -m pip install . --disable-pip-version-check --no-deps --ignore-installed --no-cache-dir --no-build-isolation -vvv"
+    - "{{ PYTHON }} setup.py install --single-version-externally-managed --record record.txt"
+    # - "{{ PYTHON }} -m pip install . --disable-pip-version-check --no-deps --ignore-installed --no-cache-dir --no-build-isolation -vvv"
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
