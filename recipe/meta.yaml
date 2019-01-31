@@ -44,8 +44,7 @@ requirements:
     - six >=1.7.3
     - {{ pin_compatible('numpy') }}
     - scipy >=0.17
-    - matplotlib-base >=3.0.2  # [py3k]
-    - matplotlib      >=2.0.0  # [py2k]
+    - matplotlib-base >=2.0.0
     - networkx >=1.8
     - pillow >=4.3.0
     - toolz >=0.7.4
