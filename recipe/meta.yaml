@@ -9,7 +9,7 @@ source:
   sha256: 1afd0b84eefd77afd1071c5c1c402553d67be2d7db8950b32d6f773f25850c1f
 
 build:
-  number: 0
+  number: 1
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
     ########################################################
@@ -44,7 +44,7 @@ requirements:
     - six >=1.7.3
     - {{ pin_compatible('numpy') }}
     - scipy >=0.17
-    - matplotlib >=2.0.0
+    - matplotlib-base >=2.0.0
     - networkx >=1.8
     - pillow >=4.3.0
     - toolz >=0.7.4
