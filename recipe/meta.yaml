@@ -60,6 +60,7 @@ test:
   requires:
     - pytest
     - pytest-cov
+    - pytest-localserver
     - numpy 1.11
   imports:
     - skimage
