@@ -16,7 +16,7 @@ build:
     # Remove these two lines at your own risk.
     #
     # pyproject.toml was getting detected by pip, and scikit-image was being built with modern numpy, not 1.11
-    - rm pyproject.toml
+    - rm -f pyproject.toml
     # I have no idea what this line actually fixes (other than speeding up the build a little bit)
     # I think windows was freaking out about path lengths, and maybe this fixed it???
     # https://github.com/conda-forge/scikit-image-feedstock/pull/39
