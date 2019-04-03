@@ -9,7 +9,8 @@ source:
   sha256: df111e654b47e5ea456c50553debe4c5ddd97258894c7ad3b7f2f9f10798e053
 
 build:
-  number: 0
+  number: 1
+  skip: True  # [py==27]
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
     ########################################################
@@ -35,26 +36,16 @@ requirements:
     - python
     - pip
     - cython >=0.23.4,!=0.28.2,!=0.29.0
-    - six >=1.7.3
     - numpy 1.11
-    - scipy >=0.17
-    - msinttypes  # [win and py<35]
   run:
     - python
-    - six >=1.7.3
     - {{ pin_compatible('numpy') }}
     - scipy >=0.17
     - matplotlib-base >=2.0.0
     - networkx >=1.8
     - pillow >=4.3.0
-    - toolz >=0.7.4
     - pywavelets >=0.4.0
-    - dask-core >=0.9.0
-    - cloudpickle >=0.2.1
     - imageio >=2.1.0
-    # scikit-image depends on dask-array
-    # which requires numpy, dask-core and toolz (cytoolz for speed)
-    - cytoolz >=0.7.3
 
 test:
   requires:
