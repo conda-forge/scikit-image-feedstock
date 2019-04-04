@@ -61,7 +61,7 @@ test:
     - pytest --pyargs skimage
 
 
-output:
+outputs:
   - name: scikit-image-core
   - name: scikit-image
     build:
