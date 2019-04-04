@@ -90,6 +90,7 @@ Current release info
 
 | Name | Downloads | Version | Platforms |
 | --- | --- | --- | --- |
+| [![Conda Recipe](https://img.shields.io/badge/recipe-scikit--image-green.svg)](https://anaconda.org/conda-forge/scikit-image) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/scikit-image.svg)](https://anaconda.org/conda-forge/scikit-image) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/scikit-image.svg)](https://anaconda.org/conda-forge/scikit-image) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/scikit-image.svg)](https://anaconda.org/conda-forge/scikit-image) |
 | [![Conda Recipe](https://img.shields.io/badge/recipe-scikit--image--core-green.svg)](https://anaconda.org/conda-forge/scikit-image-core) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/scikit-image-core.svg)](https://anaconda.org/conda-forge/scikit-image-core) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/scikit-image-core.svg)](https://anaconda.org/conda-forge/scikit-image-core) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/scikit-image-core.svg)](https://anaconda.org/conda-forge/scikit-image-core) |
 
 Installing scikit-image-core
@@ -101,16 +102,16 @@ Installing `scikit-image-core` from the `conda-forge` channel can be achieved by
 conda config --add channels conda-forge
 ```
 
-Once the `conda-forge` channel has been enabled, `scikit-image-core` can be installed with:
+Once the `conda-forge` channel has been enabled, `scikit-image, scikit-image-core` can be installed with:
 
 ```
-conda install scikit-image-core
+conda install scikit-image scikit-image-core
 ```
 
-It is possible to list all of the versions of `scikit-image-core` available on your platform with:
+It is possible to list all of the versions of `scikit-image` available on your platform with:
 
 ```
-conda search scikit-image-core --channel conda-forge
+conda search scikit-image --channel conda-forge
 ```
 
 
