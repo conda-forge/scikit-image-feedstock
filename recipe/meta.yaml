@@ -68,6 +68,7 @@ outputs:
       noarch: python
     requirements:
       run:
+        - python
         - {{ pin_subpackage('scikit-image-core', exact=True) }}
         # scikit-image depends on dask-array
         # which requires numpy, dask-core and toolz (cytoolz for speed)
@@ -104,3 +105,4 @@ extra:
     - ocefpaf
     - soupault
     - hmaarrfk
+
