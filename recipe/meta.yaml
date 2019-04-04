@@ -64,6 +64,8 @@ test:
 output:
   - name: scikit-image-core
   - name: scikit-image
+    build:
+      noarch: python
     requirements:
       run:
         - {{ pin_subpackage('scikit-image-core', exact=True) }}
