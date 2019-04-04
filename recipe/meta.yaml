@@ -64,11 +64,8 @@ test:
 outputs:
   - name: scikit-image-core
   - name: scikit-image
-    build:
-      noarch: python
     requirements:
       run:
-        - python
         - {{ pin_subpackage('scikit-image-core', exact=True) }}
         # scikit-image depends on dask-array
         # which requires numpy, dask-core and toolz (cytoolz for speed)
