@@ -1,5 +1,5 @@
-About scikit-image
-==================
+About scikit-image-core
+=======================
 
 Home: http://scikit-image.org/
 
@@ -90,27 +90,27 @@ Current release info
 
 | Name | Downloads | Version | Platforms |
 | --- | --- | --- | --- |
-| [![Conda Recipe](https://img.shields.io/badge/recipe-scikit--image-green.svg)](https://anaconda.org/conda-forge/scikit-image) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/scikit-image.svg)](https://anaconda.org/conda-forge/scikit-image) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/scikit-image.svg)](https://anaconda.org/conda-forge/scikit-image) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/scikit-image.svg)](https://anaconda.org/conda-forge/scikit-image) |
+| [![Conda Recipe](https://img.shields.io/badge/recipe-scikit--image--core-green.svg)](https://anaconda.org/conda-forge/scikit-image-core) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/scikit-image-core.svg)](https://anaconda.org/conda-forge/scikit-image-core) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/scikit-image-core.svg)](https://anaconda.org/conda-forge/scikit-image-core) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/scikit-image-core.svg)](https://anaconda.org/conda-forge/scikit-image-core) |
 
-Installing scikit-image
-=======================
+Installing scikit-image-core
+============================
 
-Installing `scikit-image` from the `conda-forge` channel can be achieved by adding `conda-forge` to your channels with:
+Installing `scikit-image-core` from the `conda-forge` channel can be achieved by adding `conda-forge` to your channels with:
 
 ```
 conda config --add channels conda-forge
 ```
 
-Once the `conda-forge` channel has been enabled, `scikit-image` can be installed with:
+Once the `conda-forge` channel has been enabled, `scikit-image-core` can be installed with:
 
 ```
-conda install scikit-image
+conda install scikit-image-core
 ```
 
-It is possible to list all of the versions of `scikit-image` available on your platform with:
+It is possible to list all of the versions of `scikit-image-core` available on your platform with:
 
 ```
-conda search scikit-image --channel conda-forge
+conda search scikit-image-core --channel conda-forge
 ```
 
 
@@ -152,17 +152,17 @@ Terminology
                   produce the finished article (built conda distributions)
 
 
-Updating scikit-image-feedstock
-===============================
+Updating scikit-image-core-feedstock
+====================================
 
-If you would like to improve the scikit-image recipe or build a new
+If you would like to improve the scikit-image-core recipe or build a new
 package version, please fork this repository and submit a PR. Upon submission,
 your changes will be run on the appropriate platforms to give the reviewer an
 opportunity to confirm that the changes result in a successful build. Once
 merged, the recipe will be re-built and uploaded automatically to the
 `conda-forge` channel, whereupon the built conda packages will be available for
 everybody to install and use from the `conda-forge` channel.
-Note that all branches in the conda-forge/scikit-image-feedstock are
+Note that all branches in the conda-forge/scikit-image-core-feedstock are
 immediately built and any created packages are uploaded, so PRs should be based
 on branches in forks and branches in the main repository should only be used to
 build distinct package versions.
