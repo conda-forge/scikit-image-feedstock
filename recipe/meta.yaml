@@ -9,7 +9,7 @@ source:
   sha256: df111e654b47e5ea456c50553debe4c5ddd97258894c7ad3b7f2f9f10798e053
 
 build:
-  number: 1
+  number: 2
   skip: True  # [py==27]
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
@@ -36,7 +36,7 @@ requirements:
     - python
     - pip
     - cython >=0.23.4,!=0.28.2,!=0.29.0
-    - numpy 1.11
+    - numpy
   run:
     - python
     - {{ pin_compatible('numpy') }}
