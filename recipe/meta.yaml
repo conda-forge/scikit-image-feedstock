@@ -9,7 +9,7 @@ source:
   sha256: 1afd0b84eefd77afd1071c5c1c402553d67be2d7db8950b32d6f773f25850c1f
 
 build:
-  number: 1
+  number: 2
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
     ########################################################
@@ -36,7 +36,7 @@ requirements:
     - pip
     - cython >=0.23.4,!=0.28.2,!=0.29.0
     - six >=1.7.3
-    - numpy 1.11
+    - numpy
     - scipy >=0.17
     - msinttypes  # [win and py<35]
   run:
