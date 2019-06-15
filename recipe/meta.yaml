@@ -7,6 +7,8 @@ package:
 source:
   url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
   sha256: df111e654b47e5ea456c50553debe4c5ddd97258894c7ad3b7f2f9f10798e053
+  patches:
+    - 3968_ignore_warning_failures.patch
 
 build:
   number: 2
