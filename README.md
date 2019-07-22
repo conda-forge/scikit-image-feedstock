@@ -5,7 +5,7 @@ Home: http://scikit-image.org/
 
 Package license: BSD 3-Clause
 
-Feedstock license: BSD 3-Clause
+Feedstock license: BSD 3-Clause 
 
 Summary: Image processing routines for SciPy.
 
