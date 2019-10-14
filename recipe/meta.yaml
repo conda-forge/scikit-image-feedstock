@@ -52,6 +52,13 @@ requirements:
     - pillow >=4.3.0
     - pywavelets >=0.4.0
     - imageio >=2.3.0
+    # scikit-image depends on dask-array
+    # which requires numpy, dask-core and toolz (cytoolz for speed)
+    - dask-core >=0.15.0
+    - toolz >=0.7.3
+    - cytoolz >=0.7.3
+    # cloudpickle is necessary to provide the 'processes' scheduler for dask
+    - cloudpickle >=0.2.1
 
 test:
   requires:
