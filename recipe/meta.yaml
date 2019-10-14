@@ -10,6 +10,9 @@ source:
   url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
   fn: scikit-image-{{ version }}.tar.gz
   sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
+  patches:
+    # Necesssary for networkx 2.4 compatibility
+    - 4236-4237-networkx_2.4_compatibility.patch
 
 build:
   number: 0
@@ -45,7 +48,7 @@ requirements:
     - {{ pin_compatible('numpy') }}
     - scipy >=0.19
     - matplotlib-base >=2.0.0
-    - networkx >=2.0,<2.4
+    - networkx >=2.0
     - pillow >=4.3.0
     - pywavelets >=0.4.0
     - imageio >=2.3.0
