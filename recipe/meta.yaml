@@ -1,18 +1,15 @@
-{% set version = "0.16.1" %}
+{% set version = "0.16.2" %}
 
 package:
   name: scikit-image
   version: {{ version }}
 
 source:
-  # url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
-  # sha256: e353cafce43c764ab3aea8289f93bf2d8751106f9e6dcaf5ed615754931c031a
-  url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
-  fn: scikit-image-{{ version }}.tar.gz
-  sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
-  patches:
-    # Necesssary for networkx 2.4 compatibility
-    - 4236-4237-networkx_2.4_compatibility.patch
+  url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
+  sha256: dd7fbd32da74d4e9967dc15845f731f16e7966cee61f5dc0e12e2abb1305068c
+  # url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
+  # fn: scikit-image-{{ version }}.tar.gz
+  # sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
 
 build:
   number: 0
