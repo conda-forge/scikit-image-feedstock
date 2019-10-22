@@ -1,4 +1,4 @@
-{% set version = "0.16.1" %}
+{% set version = "0.16.2" %}
 
 package:
   name: scikit-image
@@ -9,7 +9,7 @@ source:
   # sha256: e353cafce43c764ab3aea8289f93bf2d8751106f9e6dcaf5ed615754931c031a
   url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
   fn: scikit-image-{{ version }}.tar.gz
-  sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
+  sha256: 6ca8de67321322298aa1a700715dca0b7a3ab59d710d1bd8d1dd82b477e607e8
   patches:
     # Necesssary for networkx 2.4 compatibility
     - 4236-4237-networkx_2.4_compatibility.patch
