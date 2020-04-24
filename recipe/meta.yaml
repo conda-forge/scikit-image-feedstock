@@ -71,7 +71,7 @@ test:
     # I'm willing to leave it up to:
     #    - Nobody uses the tk backend
     #    - It is a temporary bug in Azure/conda-forge
-    - pytest --pyargs skimage -k "not io/tests/test_mpl_imshow.py::test_uint8"
+    - pytest --pyargs skimage -k "not (io/tests/test_mpl_imshow.py::test_uint8 or io/tests/test_mpl_imshow.py::test_uint16)"
 
 about:
   home: http://scikit-image.org/
