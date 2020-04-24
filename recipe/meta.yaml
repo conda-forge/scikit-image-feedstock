@@ -71,6 +71,8 @@ test:
     # I'm willing to leave it up to:
     #    - Nobody uses the tk backend
     #    - It is a temporary bug in Azure/conda-forge
+    # These expressions attempt to skip the ones located in 
+    #      io/tests/test_mpl_imshow.py
     - pytest --pyargs skimage -k "not (test_uint8 or test_uint16)"
 
 about:
