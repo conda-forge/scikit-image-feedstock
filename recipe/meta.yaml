@@ -66,6 +66,7 @@ test:
   commands:
     - setx MPLBACKEND "Agg"  # [win]
     - export MPLBACKEND=Agg  # [unix]
+    # hmaarrfk: 2020/04/24
     # I'm really not sure why why this test is complaining about tk
     # I'm willing to leave it up to:
     #    - Nobody uses the tk backend
