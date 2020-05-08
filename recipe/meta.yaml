@@ -72,9 +72,14 @@ test:
 
 about:
   home: http://scikit-image.org/
-  license: BSD 3-Clause
+  license: BSD-3-Clause
   license_file: LICENSE.txt
-  summary: 'Image processing routines for SciPy.'
+  summary: Image processing in Python.
+  description: |
+    scikit-image is a collection of algorithms for image processing. 
+    It is available free of charge and free of restriction. 
+    We pride ourselves on high-quality, peer-reviewed code, 
+    written by an active community of volunteers.
 
 extra:
   recipe-maintainers:
