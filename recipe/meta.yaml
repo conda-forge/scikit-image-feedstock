@@ -1,4 +1,4 @@
-{% set version = "0.16.2" %}
+{% set version = "0.17.1" %}
 
 package:
   name: scikit-image
@@ -6,7 +6,7 @@ package:
 
 source:
   url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
-  sha256: dd7fbd32da74d4e9967dc15845f731f16e7966cee61f5dc0e12e2abb1305068c
+  sha256: 1e2e2cf2572549bdb20b88a0f0ac275eea9f04f78b2b6973afdc3f329a73c75c
   # url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
   # fn: scikit-image-{{ version }}.tar.gz
   # sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
@@ -56,6 +56,7 @@ requirements:
     - cytoolz >=0.7.3
     # cloudpickle is necessary to provide the 'processes' scheduler for dask
     - cloudpickle >=0.2.1
+    - pooch >=0.5.2
 
 test:
   requires:
