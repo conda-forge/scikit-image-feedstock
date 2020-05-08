@@ -57,6 +57,7 @@ requirements:
     # cloudpickle is necessary to provide the 'processes' scheduler for dask
     - cloudpickle >=0.2.1
     - pooch >=0.5.2
+    - tifffile>=2019.7.26
 
 test:
   requires:
