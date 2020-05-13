@@ -3,12 +3,16 @@ About scikit-image
 
 Home: http://scikit-image.org/
 
-Package license: BSD 3-Clause
+Package license: BSD-3-Clause
 
 Feedstock license: BSD 3-Clause
 
-Summary: Image processing routines for SciPy.
+Summary: Image processing in Python.
 
+scikit-image is a collection of algorithms for image processing.
+It is available free of charge and free of restriction.
+We pride ourselves on high-quality, peer-reviewed code,
+written by an active community of volunteers.
 
 
 Current build status
