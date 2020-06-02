@@ -60,6 +60,8 @@ requirements:
   run_constrained:
     - pooch >=0.5.2
 
+# Issues reported upstream. Follow
+# https://github.com/scikit-image/scikit-image/issues/4768
 {% set tests_to_skip = "test_end_points" %}  # [ppc64le or aarch64]
 {% set tests_to_skip = tests_to_skip + " or test_RGB" %}  # [ppc64le or aarch64]
 {% set tests_to_skip = tests_to_skip + " or test_periodic_reference" %}  # [ppc64le or aarch64]
