@@ -62,8 +62,8 @@ requirements:
 
 # Issues reported upstream. Follow
 # https://github.com/scikit-image/scikit-image/issues/4768
+
 {% set tests_to_skip = "_not_a_real_test" %}
-{% set tests_to_skip = "test_hdx_rgb_roundtrip" %}  # [ppc64le or aarch64 or osx]
 {% set tests_to_skip = tests_to_skip + " or test_end_points" %}  # [ppc64le or aarch64]
 {% set tests_to_skip = tests_to_skip + " or test_RGB" %}  # [ppc64le or aarch64]
 {% set tests_to_skip = tests_to_skip + " or test_periodic_reference" %}  # [ppc64le or aarch64]
