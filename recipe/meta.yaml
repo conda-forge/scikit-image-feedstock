@@ -84,7 +84,7 @@ test:
   commands:
     - setx MPLBACKEND "Agg"  # [win]
     - export MPLBACKEND=Agg  # [unix]
-    - pytest --pyargs skimage
+    - pytest --pyargs skimage -k "not ({{ tests_to_skip }})"
 
 about:
   home: http://scikit-image.org/
