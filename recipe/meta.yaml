@@ -71,6 +71,7 @@ requirements:
 {% set tests_to_skip = tests_to_skip + " or test_hed_rgb_roundtrip" %}  # [ppc64le or aarch64 or osx]
 {% set tests_to_skip = tests_to_skip + " or test_hed_rgb_float_roundtrip" %}  # [ppc64le]
 {% set tests_to_skip = tests_to_skip + " or test_ellipse_rotated" %}  # [ppc64le]
+# https://github.com/scikit-image/scikit-image/issues/4773
 {% set tests_to_skip = tests_to_skip + " or test_RGB" %}  # [ppc64le]
 {% set tests_to_skip = tests_to_skip + " or test_fixed_reference" %}  # [ppc64le]
 {% set tests_to_skip = tests_to_skip + " or test_free_reference" %}  # [ppc64le]
