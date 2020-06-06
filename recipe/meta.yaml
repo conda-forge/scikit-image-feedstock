@@ -87,7 +87,7 @@ test:
     - export MPLBACKEND=Agg  # [unix]
     # - pytest --pyargs skimage -k "not ({{ tests_to_skip }})"
     - pytest --pyargs skimage
-
+    
 about:
   home: http://scikit-image.org/
   license: BSD-3-Clause
