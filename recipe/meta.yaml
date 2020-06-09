@@ -64,17 +64,25 @@ requirements:
 # https://github.com/scikit-image/scikit-image/issues/4768
 
 {% set tests_to_skip = "_not_a_real_test" %}
+# https://github.com/scikit-image/scikit-image/issues/4774 - test_end_points fails on ppc64le with python 3.6, 3.7, 3.8 #4774
 {% set tests_to_skip = tests_to_skip + " or test_end_points" %}  # [ppc64le or aarch64]
+# https://github.com/scikit-image/scikit-image/issues/4773 - test_RGB fails on ppc64le with python 3.7 #4773
 {% set tests_to_skip = tests_to_skip + " or test_RGB" %}  # [ppc64le or aarch64]
+# https://github.com/scikit-image/scikit-image/issues/4772 - test_periodic_reference fails on ppc64le python 3.7 (conda feedstock) #4772
 {% set tests_to_skip = tests_to_skip + " or test_periodic_reference" %}  # [ppc64le or aarch64]
+# https://github.com/scikit-image/scikit-image/issues/4775 - test_hdx_rgb_roundtrip fail son osx with python 3.8 #4775
 {% set tests_to_skip = tests_to_skip + " or test_hdx_rgb_roundtrip" %}  # [ppc64le or aarch64 or osx]
+# https://github.com/scikit-image/scikit-image/issues/4776 test_hed_rgb_roundtrip fails on osx with python3.8 and ppc64le with python 3.6 #4776
 {% set tests_to_skip = tests_to_skip + " or test_hed_rgb_roundtrip" %}  # [ppc64le or aarch64 or osx]
+# https://github.com/scikit-image/scikit-image/issues/4778 - test_hed_rgb_float_roundtrip fails on ppc64le python 3.8 #4778
 {% set tests_to_skip = tests_to_skip + " or test_hed_rgb_float_roundtrip" %}  # [ppc64le]
+# https://github.com/scikit-image/scikit-image/issues/4781 - test_ellipse_rotated fails on python3.8 #4781
 {% set tests_to_skip = tests_to_skip + " or test_ellipse_rotated" %}  # [ppc64le]
-# https://github.com/scikit-image/scikit-image/issues/4773
-{% set tests_to_skip = tests_to_skip + " or test_RGB" %}  # [ppc64le]
+# https://github.com/scikit-image/scikit-image/issues/4785 - test_fixed_reference fails on ppc64le with python 3.7 #4785
 {% set tests_to_skip = tests_to_skip + " or test_fixed_reference" %}  # [ppc64le]
+# https://github.com/scikit-image/scikit-image/issues/4782 - test_free_reference fails on ppc64le with python 3.6 #4782
 {% set tests_to_skip = tests_to_skip + " or test_free_reference" %}  # [ppc64le]
+# https://github.com/scikit-image/scikit-image/issues/4777 - test_uint16 fails on win #4777
 {% set tests_to_skip = tests_to_skip + " or test_uint16" %}  # [win]
 
 test:
