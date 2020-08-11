@@ -94,6 +94,12 @@ test:
   commands:
     - setx MPLBACKEND "Agg"  # [win]
     - export MPLBACKEND=Agg  # [unix]
+    # hmaarrfk: 
+    # A new version of numpy is causing many uncaught warnings to appear in 
+    # the test suite in 0.17.2
+    # We should enable strict warnings again on the next release.
+    - setx SKIMAGE_TEST_STRICT_WARNINGS "0"  # [win]
+    - export SKIMAGE_TEST_STRICT_WARNINGS=0  # [unix]
     - pytest --pyargs skimage -k "not ({{ tests_to_skip }})"
     
 about:
