@@ -91,6 +91,9 @@ test:
   requires:
     - pytest
     - pytest-localserver
+    # PPC64LE seems to stall and timeout on a test that takes a while.
+    # Use parallel tests to try and alleviate that.
+    - pytest-xdist
   imports:
     - skimage
   commands:
@@ -98,8 +101,8 @@ test:
     - export MPLBACKEND=Agg  # [unix]
     # A warning in numpy that makes tests fail has been fixed in 0.18
     # Remove this then.
-    - SKIMAGE_TEST_STRICT_WARNINGS=0 pytest --pyargs skimage -k "not ({{ tests_to_skip }})"  # [unix]
-    - set "SKIMAGE_TEST_STRICT_WARNINGS=0" & pytest --pyargs skimage -k "not ({{ tests_to_skip }})"  # [win]
+    - SKIMAGE_TEST_STRICT_WARNINGS=0 pytest -n {{ CPU_COUNT }}--pyargs skimage -k "not ({{ tests_to_skip }})"  # [unix]
+    - set "SKIMAGE_TEST_STRICT_WARNINGS=0" & pytest -n {{ CPU_COUNT }} --pyargs skimage -k "not ({{ tests_to_skip }})"  # [win]
 
 about:
   home: http://scikit-image.org/
