@@ -101,7 +101,7 @@ test:
     - export MPLBACKEND=Agg  # [unix]
     # A warning in numpy that makes tests fail has been fixed in 0.18
     # Remove this then.
-    - SKIMAGE_TEST_STRICT_WARNINGS=0 pytest -n {{ CPU_COUNT }}--pyargs skimage -k "not ({{ tests_to_skip }})"  # [unix]
+    - SKIMAGE_TEST_STRICT_WARNINGS=0 pytest -n {{ CPU_COUNT }} --pyargs skimage -k "not ({{ tests_to_skip }})"  # [unix]
     - set "SKIMAGE_TEST_STRICT_WARNINGS=0" & pytest -n {{ CPU_COUNT }} --pyargs skimage -k "not ({{ tests_to_skip }})"  # [win]
 
 about:
