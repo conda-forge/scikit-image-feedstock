@@ -12,8 +12,7 @@ source:
   # sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
 
 build:
-  number: 1
-  skip: true  # [py==27]
+  number: 2
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
     ########################################################
@@ -94,8 +93,11 @@ test:
   commands:
     - setx MPLBACKEND "Agg"  # [win]
     - export MPLBACKEND=Agg  # [unix]
-    - pytest --pyargs skimage -k "not ({{ tests_to_skip }})"
-    
+    # A warning in numpy that makes tests fail has been fixed in 0.18
+    # Remove this then.
+    - SKIMAGE_TEST_STRICT_WARNINGS=0 pytest --pyargs skimage -k "not ({{ tests_to_skip }})"  # [unix]
+    - set "SKIMAGE_TEST_STRICT_WARNINGS=0" & pytest --pyargs skimage -k "not ({{ tests_to_skip }})"  # [win]
+
 about:
   home: http://scikit-image.org/
   license: BSD-3-Clause
