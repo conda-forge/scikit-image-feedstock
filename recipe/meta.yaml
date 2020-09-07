@@ -97,7 +97,7 @@ test:
     # A warning in numpy that makes tests fail has been fixed in 0.18
     # Remove this then.
     - SKIMAGE_TEST_STRICT_WARNINGS=0 pytest --pyargs skimage -k "not ({{ tests_to_skip }})"  # [unix]
-    - set SKIMAGE_TEST_STRICT_WARNINGS=0 & pytest --pyargs skimage -k "not ({{ tests_to_skip }})"  # [win]
+    - set "SKIMAGE_TEST_STRICT_WARNINGS=0" & pytest --pyargs skimage -k "not ({{ tests_to_skip }})"  # [win]
 
 about:
   home: http://scikit-image.org/
