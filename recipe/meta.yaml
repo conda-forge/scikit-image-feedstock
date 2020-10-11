@@ -54,7 +54,7 @@ requirements:
     - toolz >=0.7.3
     # cytoolz was designed for CPython and not for PyPy
     # https://github.com/conda-forge/cytoolz-feedstock/pull/28#issuecomment-705421078
-    - cytoolz >=0.7.3 # [python_impl == 'cpython']
+    - cytoolz >=0.7.3  # [python_impl == 'cpython']
     # cloudpickle is necessary to provide the 'processes' scheduler for dask
     - cloudpickle >=0.2.1
     - tifffile >=2019.7.26
