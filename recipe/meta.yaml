@@ -12,7 +12,7 @@ source:
   # sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
 
 build:
-  number: 2
+  number: 3
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
     ########################################################
@@ -52,7 +52,9 @@ requirements:
     # which requires numpy, dask-core and toolz (cytoolz for speed)
     - dask-core >=0.15.0
     - toolz >=0.7.3
-    - cytoolz >=0.7.3
+    # cytoolz was designed for CPython and not for PyPy
+    # https://github.com/conda-forge/cytoolz-feedstock/pull/28#issuecomment-705421078
+    - cytoolz >=0.7.3  # [python_impl == 'cpython']
     # cloudpickle is necessary to provide the 'processes' scheduler for dask
     - cloudpickle >=0.2.1
     - tifffile >=2019.7.26
