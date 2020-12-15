@@ -1,4 +1,4 @@
-{% set version = "0.17.2" %}
+{% set version = "0.18.0" %}
 
 package:
   name: scikit-image
@@ -6,13 +6,13 @@ package:
 
 source:
   url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
-  sha256: bd954c0588f0f7e81d9763dc95e06950e68247d540476e06cb77bcbcd8c2d8b3
+  sha256: a0c78a117080101dbeeaa430804fe9512575cf2696ddbf822a7ee30d0776f5da
   # url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
   # fn: scikit-image-{{ version }}.tar.gz
   # sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
 
 build:
-  number: 4
+  number: 0
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
     ########################################################
@@ -123,4 +123,4 @@ extra:
     - ocefpaf
     - soupault
     - hmaarrfk
-    - emmanuelle 
+    - emmanuelle
