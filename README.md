@@ -19,7 +19,7 @@ Current build status
 ====================
 
 
-<table><tr>
+<table> <tr>
     <td>Travis</td>
     <td>
       <a href="https://travis-ci.com/conda-forge/scikit-image-feedstock">
