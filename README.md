@@ -19,7 +19,7 @@ Current build status
 ====================
 
 
-<table> <tr>
+<table><tr>
     <td>Travis</td>
     <td>
       <a href="https://travis-ci.com/conda-forge/scikit-image-feedstock">
@@ -166,24 +166,31 @@ Current build status
                 </a>
               </td>
             </tr><tr>
-              <td>win_64_numpy1.18python3.7.____cpython</td>
+              <td>win_64_numpy1.18python3.7.____cpythonpython_implcpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=1882&branchName=master">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/scikit-image-feedstock?branchName=master&jobName=win&configuration=win_64_numpy1.18python3.7.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/scikit-image-feedstock?branchName=master&jobName=win&configuration=win_64_numpy1.18python3.7.____cpythonpython_implcpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>win_64_numpy1.18python3.8.____cpython</td>
+              <td>win_64_numpy1.18python3.8.____cpythonpython_implcpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=1882&branchName=master">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/scikit-image-feedstock?branchName=master&jobName=win&configuration=win_64_numpy1.18python3.8.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/scikit-image-feedstock?branchName=master&jobName=win&configuration=win_64_numpy1.18python3.8.____cpythonpython_implcpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>win_64_numpy1.19python3.9.____cpython</td>
+              <td>win_64_numpy1.19python3.7.____73_pypypython_implpypy</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=1882&branchName=master">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/scikit-image-feedstock?branchName=master&jobName=win&configuration=win_64_numpy1.19python3.9.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/scikit-image-feedstock?branchName=master&jobName=win&configuration=win_64_numpy1.19python3.7.____73_pypypython_implpypy" alt="variant">
+                </a>
+              </td>
+            </tr><tr>
+              <td>win_64_numpy1.19python3.9.____cpythonpython_implcpython</td>
+              <td>
+                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=1882&branchName=master">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/scikit-image-feedstock?branchName=master&jobName=win&configuration=win_64_numpy1.19python3.9.____cpythonpython_implcpython" alt="variant">
                 </a>
               </td>
             </tr>
