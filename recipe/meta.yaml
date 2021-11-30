@@ -16,6 +16,8 @@ build:
   skip: true  # [py<37]
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
+    - rm -f skimage/*/*.c  # remove cythonized files
+    - rm -f skimage/*/*/*.c  # remove cythonized files
     - "{{ PYTHON }} -m pip install . -vv"
   entry_points:
     - skivi = skimage.scripts.skivi:main
