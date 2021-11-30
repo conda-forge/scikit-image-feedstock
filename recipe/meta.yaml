@@ -5,19 +5,15 @@ package:
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
-  sha256: ecae99f93f4c5e9b1bf34959f4dc596c41f2f6b2fc407d9d9ddf85aebd3137ca
-  # url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
-  # fn: scikit-image-{{ version }}.tar.gz
-  # sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
+
+  url: https://github.com/scikit-image/scikit-image/archive/refs/tags/v{{ version }}.tar.gz
+  sha256: a8d1c7473fc9399447a4cd5718c90338fffd543622d9e6f3d9feca43f1a9cb15
 
 build:
   number: 1
   skip: true  # [py<37]
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
-    - rm -f skimage/*/*.c  # remove cythonized files
-    - rm -f skimage/*/*/*.c  # remove cythonized files
     - "{{ PYTHON }} -m pip install . -vv"
   entry_points:
     - skivi = skimage.scripts.skivi:main
