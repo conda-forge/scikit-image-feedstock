@@ -13,7 +13,6 @@ source:
 
 build:
   number: 1
-  skip: true  # [py<37]
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
     - "{{ PYTHON }} -m pip install . -vv"
@@ -33,7 +32,6 @@ requirements:
     - pip
     - cython >=0.25,!=0.28.2,!=0.29.0
     # just trying to pin cython to the last known successful build
-    - cython 0.29.24  # [win and (python_impl != 'cpython')]
     - numpy
   run:
     - python
