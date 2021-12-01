@@ -12,22 +12,10 @@ source:
   # sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
 
 build:
-  number: 0
-  skip: true  # [py<37]
+  number: 1
   script:
     - rm -rf skimage/viewer/tests  # we don't depend on Qt
-    ########################################################
-    # Remove these two lines at your own risk.
-    #
-    # pyproject.toml was getting detected by pip, and scikit-image was being built with modern numpy, not 1.11
-    - rm -f pyproject.toml
-    # I have no idea what this line actually fixes (other than speeding up the build a little bit)
-    # I think windows was freaking out about path lengths, and maybe this fixed it???
-    # https://github.com/conda-forge/scikit-image-feedstock/pull/39
-    - {{ PYTHON }} setup.py build_ext -j2
-    ########################################################
-    - {{ PYTHON }} setup.py install --single-version-externally-managed --record record.txt
-    # - "{{ PYTHON }} -m pip install . --disable-pip-version-check --no-deps --ignore-installed --no-cache-dir --no-build-isolation -vvv"
+    - "{{ PYTHON }} -m pip install . -vv"
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
