@@ -1,3 +1,17 @@
+diff --git a/skimage/data/tests/test_data.py b/skimage/data/tests/test_data.py
+index 7e691f90d..a9d207798 100644
+--- a/skimage/data/tests/test_data.py
++++ b/skimage/data/tests/test_data.py
+@@ -149,6 +149,9 @@ def test_skin():
+ 
+     Needs internet connection.
+     """
++    # Fetch causes the test to get skipped if it isn't available during
++    # CI tests
++    fetch('data/skin.jpg')
+     skin = data.skin()
+     assert skin.ndim == 3
+ 
 diff --git a/skimage/measure/tests/test_blur_effect.py b/skimage/measure/tests/test_blur_effect.py
 index eaef61b87..8f3a016f6 100644
 --- a/skimage/measure/tests/test_blur_effect.py
@@ -7,14 +21,14 @@ index eaef61b87..8f3a016f6 100644
  from skimage.filters import gaussian
  from skimage.measure import blur_effect
 +from skimage._shared.testing import fetch
-
+ 
  image = astronaut()
 -image_3d = cells3d()[:, 1, :, :]  # grab just the nuclei
-
-
+ 
+ 
  def test_blur_effect():
 @@ -46,6 +46,10 @@ def test_blur_effect_channel_axis():
-
+ 
  def test_blur_effect_3d():
      """Test that the blur metric works on a 3D image."""
 +    # Fetching the data through the testing module will
@@ -24,3 +38,38 @@ index eaef61b87..8f3a016f6 100644
      B0 = blur_effect(image_3d)
      B1 = blur_effect(gaussian(image_3d, sigma=1))
      B2 = blur_effect(gaussian(image_3d, sigma=4))
+diff --git a/skimage/registration/tests/test_masked_phase_cross_correlation.py b/skimage/registration/tests/test_masked_phase_cross_correlation.py
+index 63bc84287..ba647e76c 100644
+--- a/skimage/registration/tests/test_masked_phase_cross_correlation.py
++++ b/skimage/registration/tests/test_masked_phase_cross_correlation.py
+@@ -62,6 +62,8 @@ def test_masked_registration_random_masks():
+ def test_masked_registration_3d_contiguous_mask():
+     """masked_register_translation should be able to register translations
+     between volumes with contiguous masks."""
++    # Fetch the data to skip this test automatically if pooch isn't installed
++    fetch("data/brain.tiff")
+     ref_vol = brain()[:, ::2, ::2]
+ 
+     offset = (1, -5, 10)
+diff --git a/skimage/restoration/tests/test_rolling_ball.py b/skimage/restoration/tests/test_rolling_ball.py
+index c168d10bb..78d85f0e2 100644
+--- a/skimage/restoration/tests/test_rolling_ball.py
++++ b/skimage/restoration/tests/test_rolling_ball.py
+@@ -9,6 +9,7 @@ import pytest
+ from skimage import data
+ from skimage.restoration import rolling_ball
+ from skimage.restoration.rolling_ball import ellipsoid_kernel
++from skimage._shared.testing import fetch
+ 
+ 
+ @pytest.mark.parametrize(
+@@ -98,6 +99,9 @@ def test_threads(num_threads):
+ 
+ 
+ def test_ndim():
++    # Fetching the data through the testing module will
++    # cause the test to skip if pooch isn't installed.
++    fetch("data/cells3d.tif")
+     image = data.cells3d()[:5, 1, ...]
+     kernel = ellipsoid_kernel((3, 100, 100), 100)
+     rolling_ball(image, kernel=kernel)
