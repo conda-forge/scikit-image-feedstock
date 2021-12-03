@@ -10,8 +10,8 @@ source:
   # url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
   # fn: scikit-image-{{ version }}.tar.gz
   # sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
-  patches:
-    - skip_test_cell3d.patch
+  # patches:
+  #   - skip_test_cell3d.patch
 
 build:
   number: 0
@@ -89,6 +89,7 @@ test:
   requires:
     - pytest
     - pytest-localserver
+    - pooch
   imports:
     - skimage
   commands:
