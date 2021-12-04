@@ -15,9 +15,6 @@ source:
 
 build:
   number: 0
-  script:
-    - rm -rf skimage/viewer/tests  # we don't depend on Qt
-    - {{ PYTHON }} -m pip install . -vv
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
