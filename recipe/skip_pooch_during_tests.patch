@@ -1,0 +1,41 @@
+diff --git a/skimage/data/_fetchers.py b/skimage/data/_fetchers.py
+index 821e086a8..cbd86852e 100644
+--- a/skimage/data/_fetchers.py
++++ b/skimage/data/_fetchers.py
+@@ -194,6 +194,18 @@ def _fetch(data_filename):
+     # Case 3:
+     # Pooch not found.
+     if image_fetcher is None:
++        # Check if pytest is currently running.
++        # Packagers might use pytest to run the tests suite, but may not
++        # want to run it online with pooch as a dependency.
++        # As such, we will avoid failing the test, and silently skipping it.
++        if 'PYTEST_CURRENT_TEST' in os.environ:
++            # https://docs.pytest.org/en/latest/example/simple.html#pytest-current-test-environment-variable
++            import pytest
++            # Pytest skip raises an exception that allows the
++            # tests to be skipped
++            pytest.skip(f'Unable to download {data_filename}',
++                        allow_module_level=True)
++
+         raise ModuleNotFoundError(
+             "The requested file is part of the scikit-image distribution, "
+             "but requires the installation of an optional dependency, pooch. "
+@@ -209,6 +221,17 @@ def _fetch(data_filename):
+     try:
+         resolved_path = image_fetcher.fetch(data_filename)
+     except ConnectionError as err:
++        # Check if pytest is currently running.
++        # Packagers might use pytest to run the tests suite, but may not
++        # want to run it online.
++        # As such, we will avoid failing the test, and silently skipping it.
++        if 'PYTEST_CURRENT_TEST' in os.environ:
++            # https://docs.pytest.org/en/latest/example/simple.html#pytest-current-test-environment-variable
++            import pytest
++            # Pytest skip raises an exception that allows the
++            # tests to be skipped
++            pytest.skip(f'Unable to download {data_filename}',
++                        allow_module_level=True)
+         # If we decide in the future to suppress the underlying 'requests'
+         # error, change this to `raise ... from None`. See PEP 3134.
+         raise ConnectionError(
