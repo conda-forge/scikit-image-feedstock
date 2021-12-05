@@ -42,11 +42,15 @@ index 2376e7db7..8623f5d28 100644
          out[0] = <dtype_t_out>0
  
 diff --git a/skimage/filters/rank/percentile_cy.pyx b/skimage/filters/rank/percentile_cy.pyx
-index 4985434d5..0d612bc31 100644
+index 4985434d5..e4fd05b56 100644
 --- a/skimage/filters/rank/percentile_cy.pyx
 +++ b/skimage/filters/rank/percentile_cy.pyx
-@@ -17,14 +17,14 @@ cdef inline void _kernel_autolevel(dtype_t_out* out, Py_ssize_t odepth,
-     cdef Py_ssize_t i, imin, imax, sum, delta
+@@ -14,20 +14,20 @@ cdef inline void _kernel_autolevel(dtype_t_out* out, Py_ssize_t odepth,
+                                    double p0, double p1,
+                                    Py_ssize_t s0, Py_ssize_t s1) nogil:
+ 
+-    cdef Py_ssize_t i, imin, imax, sum, delta
++    cdef Py_ssize_t i, imin, imax, running_sum, delta
  
      if pop:
 -        sum = 0
@@ -62,10 +66,23 @@ index 4985434d5..0d612bc31 100644
 -        sum = 0
 +        running_sum = 0
          for i in range(n_bins - 1, -1, -1):
-             sum += histo[i]
-             if sum > p1 * pop:
-@@ -54,14 +54,14 @@ cdef inline void _kernel_gradient(dtype_t_out* out, Py_ssize_t odepth,
-         sum = 0
+-            sum += histo[i]
+-            if sum > p1 * pop:
++            running_sum += histo[i]
++            if running_sum > p1 * pop:
+                 imax = i
+                 break
+ 
+@@ -48,20 +48,20 @@ cdef inline void _kernel_gradient(dtype_t_out* out, Py_ssize_t odepth,
+                                   double p0, double p1,
+                                   Py_ssize_t s0, Py_ssize_t s1) nogil:
+ 
+-    cdef Py_ssize_t i, imin, imax, sum, delta
++    cdef Py_ssize_t i, imin, imax, running_sum, delta
+ 
+     if pop:
+-        sum = 0
++        running_sum = 0
          p1 = 1.0 - p1
          for i in range(n_bins):
 -            sum += histo[i]
@@ -74,7 +91,8 @@ index 4985434d5..0d612bc31 100644
 +            if running_sum >= p0 * pop:
                  imin = i
                  break
-         sum = 0
+-        sum = 0
++        running_sum = 0
          for i in range(n_bins - 1, -1, -1):
 -            sum += histo[i]
 -            if sum >= p1 * pop:
