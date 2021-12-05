@@ -1,0 +1,229 @@
+diff --git a/skimage/filters/rank/bilateral_cy.pyx b/skimage/filters/rank/bilateral_cy.pyx
+index 329d59092..942190fa0 100644
+--- a/skimage/filters/rank/bilateral_cy.pyx
++++ b/skimage/filters/rank/bilateral_cy.pyx
+@@ -62,15 +62,15 @@ cdef inline void _kernel_sum(dtype_t_out* out, Py_ssize_t odepth,
+ 
+     cdef Py_ssize_t i
+     cdef Py_ssize_t bilat_pop = 0
+-    cdef Py_ssize_t sum = 0
++    cdef Py_ssize_t running_sum = 0
+ 
+     if pop:
+         for i in range(n_bins):
+             if (g > (i - s0)) and (g < (i + s1)):
+                 bilat_pop += histo[i]
+-                sum += histo[i] * i
++                running_sum += histo[i] * i
+         if bilat_pop:
+-            out[0] = <dtype_t_out>sum
++            out[0] = <dtype_t_out>running_sum
+         else:
+             out[0] = <dtype_t_out>0
+     else:
+diff --git a/skimage/filters/rank/generic_cy.pyx b/skimage/filters/rank/generic_cy.pyx
+index 2376e7db7..8623f5d28 100644
+--- a/skimage/filters/rank/generic_cy.pyx
++++ b/skimage/filters/rank/generic_cy.pyx
+@@ -262,12 +262,12 @@ cdef inline void _kernel_sum(dtype_t_out* out, Py_ssize_t odepth,
+                              Py_ssize_t s0, Py_ssize_t s1) nogil:
+ 
+     cdef Py_ssize_t i
+-    cdef Py_ssize_t sum = 0
++    cdef Py_ssize_t running_sum = 0
+ 
+     if pop:
+         for i in range(n_bins):
+-            sum += histo[i] * i
+-        out[0] = <dtype_t_out>sum
++            running_sum += histo[i] * i
++        out[0] = <dtype_t_out>running_sum
+     else:
+         out[0] = <dtype_t_out>0
+ 
+diff --git a/skimage/filters/rank/percentile_cy.pyx b/skimage/filters/rank/percentile_cy.pyx
+index 4985434d5..0d612bc31 100644
+--- a/skimage/filters/rank/percentile_cy.pyx
++++ b/skimage/filters/rank/percentile_cy.pyx
+@@ -17,14 +17,14 @@ cdef inline void _kernel_autolevel(dtype_t_out* out, Py_ssize_t odepth,
+     cdef Py_ssize_t i, imin, imax, sum, delta
+ 
+     if pop:
+-        sum = 0
++        running_sum = 0
+         p1 = 1.0 - p1
+         for i in range(n_bins):
+-            sum += histo[i]
+-            if sum > p0 * pop:
++            running_sum += histo[i]
++            if running_sum > p0 * pop:
+                 imin = i
+                 break
+-        sum = 0
++        running_sum = 0
+         for i in range(n_bins - 1, -1, -1):
+             sum += histo[i]
+             if sum > p1 * pop:
+@@ -54,14 +54,14 @@ cdef inline void _kernel_gradient(dtype_t_out* out, Py_ssize_t odepth,
+         sum = 0
+         p1 = 1.0 - p1
+         for i in range(n_bins):
+-            sum += histo[i]
+-            if sum >= p0 * pop:
++            running_sum += histo[i]
++            if running_sum >= p0 * pop:
+                 imin = i
+                 break
+         sum = 0
+         for i in range(n_bins - 1, -1, -1):
+-            sum += histo[i]
+-            if sum >= p1 * pop:
++            running_sum += histo[i]
++            if running_sum >= p1 * pop:
+                 imax = i
+                 break
+ 
+@@ -77,15 +77,15 @@ cdef inline void _kernel_mean(dtype_t_out* out, Py_ssize_t odepth,
+                               double p0, double p1,
+                               Py_ssize_t s0, Py_ssize_t s1) nogil:
+ 
+-    cdef Py_ssize_t i, sum, mean, n
++    cdef Py_ssize_t i, running_sum, mean, n
+ 
+     if pop:
+-        sum = 0
++        running_sum = 0
+         mean = 0
+         n = 0
+         for i in range(n_bins):
+-            sum += histo[i]
+-            if (sum >= p0 * pop) and (sum <= p1 * pop):
++            running_sum += histo[i]
++            if (running_sum >= p0 * pop) and (running_sum <= p1 * pop):
+                 n += histo[i]
+                 mean += histo[i] * i
+ 
+@@ -103,15 +103,15 @@ cdef inline void _kernel_sum(dtype_t_out* out, Py_ssize_t odepth,
+                              double p0, double p1,
+                              Py_ssize_t s0, Py_ssize_t s1) nogil:
+ 
+-    cdef Py_ssize_t i, sum, sum_g, n
++    cdef Py_ssize_t i, running_sum, sum_g, n
+ 
+     if pop:
+-        sum = 0
++        running_sum = 0
+         sum_g = 0
+         n = 0
+         for i in range(n_bins):
+-            sum += histo[i]
+-            if (sum >= p0 * pop) and (sum <= p1 * pop):
++            running_sum += histo[i]
++            if (running_sum >= p0 * pop) and (running_sum <= p1 * pop):
+                 n += histo[i]
+                 sum_g += histo[i] * i
+ 
+@@ -130,15 +130,15 @@ cdef inline void _kernel_subtract_mean(dtype_t_out* out, Py_ssize_t odepth,
+                                        double p1, Py_ssize_t s0,
+                                        Py_ssize_t s1) nogil:
+ 
+-    cdef Py_ssize_t i, sum, mean, n
++    cdef Py_ssize_t i, running_sum, mean, n
+ 
+     if pop:
+-        sum = 0
++        running_sum = 0
+         mean = 0
+         n = 0
+         for i in range(n_bins):
+-            sum += histo[i]
+-            if (sum >= p0 * pop) and (sum <= p1 * pop):
++            running_sum += histo[i]
++            if (running_sum >= p0 * pop) and (running_sum <= p1 * pop):
+                 n += histo[i]
+                 mean += histo[i] * i
+         if n > 0:
+@@ -158,20 +158,20 @@ cdef inline void _kernel_enhance_contrast(dtype_t_out* out,
+                                           double p1, Py_ssize_t s0,
+                                           Py_ssize_t s1) nogil:
+ 
+-    cdef Py_ssize_t i, imin, imax, sum, delta
++    cdef Py_ssize_t i, imin, imax, running_sum, delta
+ 
+     if pop:
+-        sum = 0
++        running_sum = 0
+         p1 = 1.0 - p1
+         for i in range(n_bins):
+-            sum += histo[i]
+-            if sum > p0 * pop:
++            running_sum += histo[i]
++            if running_sum > p0 * pop:
+                 imin = i
+                 break
+-        sum = 0
++        running_sum = 0
+         for i in range(n_bins - 1, -1, -1):
+-            sum += histo[i]
+-            if sum > p1 * pop:
++            running_sum += histo[i]
++            if running_sum > p1 * pop:
+                 imax = i
+                 break
+         if g > imax:
+@@ -194,7 +194,7 @@ cdef inline void _kernel_percentile(dtype_t_out* out, Py_ssize_t odepth,
+                                     Py_ssize_t s0, Py_ssize_t s1) nogil:
+ 
+     cdef Py_ssize_t i
+-    cdef Py_ssize_t sum = 0
++    cdef Py_ssize_t running_sum = 0
+ 
+     if pop:
+         if p0 == 1:  # make sure p0 = 1 returns the maximum filter
+@@ -203,8 +203,8 @@ cdef inline void _kernel_percentile(dtype_t_out* out, Py_ssize_t odepth,
+                     break
+         else:
+             for i in range(n_bins):
+-                sum += histo[i]
+-                if sum > p0 * pop:
++                running_sum += histo[i]
++                if running_sum > p0 * pop:
+                     break
+         out[0] = <dtype_t_out>i
+     else:
+@@ -218,14 +218,14 @@ cdef inline void _kernel_pop(dtype_t_out* out, Py_ssize_t odepth,
+                              double p0, double p1,
+                              Py_ssize_t s0, Py_ssize_t s1) nogil:
+ 
+-    cdef Py_ssize_t i, sum, n
++    cdef Py_ssize_t i, running_sum, n
+ 
+     if pop:
+-        sum = 0
++        running_sum = 0
+         n = 0
+         for i in range(n_bins):
+-            sum += histo[i]
+-            if (sum >= p0 * pop) and (sum <= p1 * pop):
++            running_sum += histo[i]
++            if (running_sum >= p0 * pop) and (running_sum <= p1 * pop):
+                 n += histo[i]
+         out[0] = <dtype_t_out>n
+     else:
+@@ -240,12 +240,12 @@ cdef inline void _kernel_threshold(dtype_t_out* out, Py_ssize_t odepth,
+                                    Py_ssize_t s0, Py_ssize_t s1) nogil:
+ 
+     cdef int i
+-    cdef Py_ssize_t sum = 0
++    cdef Py_ssize_t running_sum = 0
+ 
+     if pop:
+         for i in range(n_bins):
+-            sum += histo[i]
+-            if sum >= p0 * pop:
++            running_sum += histo[i]
++            if running_sum >= p0 * pop:
+                 break
+ 
+         out[0] = <dtype_t_out>((n_bins - 1) * (g >= i))
+
