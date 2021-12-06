@@ -12,7 +12,8 @@ source:
   # sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
   patches:
     - skip_pooch_during_tests.patch
-    - rank_filter_modulus.patch
+    - gh-6103-rank-filter-modulus.patch
+    - gh-6105-test-ransac-geometric.patch
 
 build:
   number: 0
