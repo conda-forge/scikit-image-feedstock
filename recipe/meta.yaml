@@ -13,6 +13,7 @@ source:
   patches:
     - skip_pooch_during_tests.patch
     - fix_sum_keyword_rank.patch
+    - avoid_uint_overflows.patch
 
 build:
   number: 0

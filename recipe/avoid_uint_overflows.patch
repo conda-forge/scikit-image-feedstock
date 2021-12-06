@@ -1,0 +1,18 @@
+--- skimage/filters/rank/tests/test_rank.py.orig	2021-12-06 07:11:50.000000000 -0800
++++ skimage/filters/rank/tests/test_rank.py	2021-12-06 07:29:01.000000000 -0800
+@@ -147,6 +147,15 @@
+                     datadt = np.uint8
+                 else:
+                     datadt = expected.dtype
++
++                # For short integers ensure that our result fits within
++                # range with an explicit modulo.  This avoids undefined type
++                # conversion overflows.
++                if datadt == np.uint8:
++                    result %= 2**8
++                elif datadt == np.uint16:
++                    result %= 2**16
++
+                 result = result.astype(datadt)
+             assert_array_almost_equal(expected, result)
+ 
