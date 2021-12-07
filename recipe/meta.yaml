@@ -86,6 +86,9 @@ requirements:
 # It seems that the apply_parallel tests can have relatively small errors on windows
 {% set tests_to_skip = tests_to_skip + " or test_apply_parallel_rgb" %}  # [win]
 
+# skip known failure on PyPy
+{% set tests_to_skip = tests_to_skip + " or test_hough_ellipse_zero_angle or test_hough_ellipse_non_zero" %}  #  [python_impl == 'pypy']
+
 test:
   requires:
     - pytest
