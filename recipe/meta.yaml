@@ -96,7 +96,7 @@ test:
     # 2021/12/04: 0.19.0: hmaarrfk
     # We noticed that osx had strange failures with cythonized code
     # Testing with full datasets on OSX to ensure we don't have bugs
-    - pooch  # [osx]
+    - pooch
   imports:
     - skimage
   commands:
