@@ -1,0 +1,38 @@
+From 92492dc546a446113ceb0e6e998fd9406250f92a Mon Sep 17 00:00:00 2001
+From: Gregory Lee <grlee77@gmail.com>
+Date: Mon, 6 Dec 2021 11:01:44 -0500
+Subject: [PATCH] TST: make rank filter result comparisons robust across
+ architectures
+
+---
+ skimage/filters/rank/tests/test_rank.py | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/skimage/filters/rank/tests/test_rank.py b/skimage/filters/rank/tests/test_rank.py
+index 3aabd047c2..85255782d6 100644
+--- a/skimage/filters/rank/tests/test_rank.py
++++ b/skimage/filters/rank/tests/test_rank.py
+@@ -110,8 +110,10 @@ def check():
+                 assert_array_almost_equal(expected, result)
+             else:
+                 if outdt is not None:
+-                    # Avoid rounding issues comparing to expected result
+-                    result = result.astype(expected.dtype)
++                    # Avoid rounding issues comparing to expected result.
++                    # Take modulus first to avoid undefined behavior for
++                    # float->uint8 conversions.
++                    result = np.mod(result, 256.0).astype(expected.dtype)
+                 assert_array_almost_equal(expected, result)
+ 
+         check()
+@@ -147,7 +149,9 @@ def check():
+                     datadt = np.uint8
+                 else:
+                     datadt = expected.dtype
+-                result = result.astype(datadt)
++                # Take modulus first to avoid undefined behavior for
++                # float->uint8 conversions.
++                result = np.mod(result, 256.0).astype(datadt)
+             assert_array_almost_equal(expected, result)
+ 
+         check()
