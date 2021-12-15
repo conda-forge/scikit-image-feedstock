@@ -338,6 +338,7 @@ Feedstock Maintainers
 =====================
 
 * [@emmanuelle](https://github.com/emmanuelle/)
+* [@grlee77](https://github.com/grlee77/)
 * [@hmaarrfk](https://github.com/hmaarrfk/)
 * [@jakirkham](https://github.com/jakirkham/)
 * [@jni](https://github.com/jni/)
