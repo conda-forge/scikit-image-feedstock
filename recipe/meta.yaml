@@ -90,7 +90,7 @@ test:
     - pytest
     - pytest-localserver
     # Include pooch to ensure full test coverage
-    - pooch
+    - pooch  # [not ppc64le]
   imports:
     - skimage
   commands:
