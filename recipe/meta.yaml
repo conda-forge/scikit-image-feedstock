@@ -99,7 +99,7 @@ test:
     # A warning in numpy that makes tests fail has been fixed in 0.18
     # Remove this then.
     # tests run slowly on ci servers, so we skip them
-    - SKIMAGE_TEST_STRICT_WARNINGS=0 pytest --pyargs skimage -k "not ({{ tests_to_skip }})"  # [unix x86_64]
+    - SKIMAGE_TEST_STRICT_WARNINGS=0 pytest --pyargs skimage -k "not ({{ tests_to_skip }})"  # [unix and x86_64]
     - set "SKIMAGE_TEST_STRICT_WARNINGS=0" & pytest --pyargs skimage -k "not ({{ tests_to_skip }})"  # [win]
 
 about:
