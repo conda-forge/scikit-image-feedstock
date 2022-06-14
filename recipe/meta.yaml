@@ -87,6 +87,9 @@ requirements:
 
 # skip known failure on Windows PyPy builds
 {% set tests_to_skip = tests_to_skip + " or test_hough_ellipse_zero_angle or test_hough_ellipse_non_zero" %}  # [win and (python_impl == 'pypy')]
+# This used to be a known failure in Python 3.4 that resurfaced in PyPy3.7
+# https://github.com/conda-forge/scikit-image-feedstock/pull/91#issuecomment-1153888057
+{% set tests_to_skip = tests_to_skip + " or test_wrap_aroun" %}  # [python_impl == 'pypy']
 
 test:
   requires:
