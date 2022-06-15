@@ -1,4 +1,4 @@
-{% set version = "0.19.2" %}
+{% set version = "0.19.3" %}
 
 package:
   name: scikit-image
@@ -6,7 +6,7 @@ package:
 
 source:
   url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
-  sha256: d433b4642a6f8219e749dfbbe4b5e742d560996540c9749ede510274d061866d
+  sha256: 24b5367de1762da6ee126dd8f30cc4e7efda474e0d7d70685433f0e3aa2ec450
   # url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
   # fn: scikit-image-{{ version }}.tar.gz
   # sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
@@ -37,7 +37,10 @@ requirements:
     - python
     - {{ pin_compatible('numpy') }}
     - scipy >=1.4.1
-    - networkx >=2.2
+    # pin to older networkx<2.7 for Python 3.7 as it requires SciPy>=1.8 which
+    # is only available for Python>=3.8.
+    - networkx >=2.2,<2.7   # [py<=37]
+    - networkx >=2.2  # [py>37]
     - pillow >=6.1.0,!=7.1.0,!=7.1.1,!=8.3.0
     - imageio >=2.3.0
     - tifffile >=2019.7.26
@@ -84,6 +87,9 @@ requirements:
 
 # skip known failure on Windows PyPy builds
 {% set tests_to_skip = tests_to_skip + " or test_hough_ellipse_zero_angle or test_hough_ellipse_non_zero" %}  # [win and (python_impl == 'pypy')]
+# This used to be a known failure in Python 3.4 that resurfaced in PyPy3.7
+# https://github.com/conda-forge/scikit-image-feedstock/pull/91#issuecomment-1153888057
+{% set tests_to_skip = tests_to_skip + " or test_wrap_aroun" %}  # [python_impl == 'pypy']
 
 test:
   requires:
