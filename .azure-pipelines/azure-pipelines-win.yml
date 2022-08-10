@@ -8,14 +8,17 @@ jobs:
     vmImage: windows-2019
   strategy:
     matrix:
-      win_64_numpy1.19python3.7.____73_pypypython_implpypy:
-        CONFIG: win_64_numpy1.19python3.7.____73_pypypython_implpypy
-        UPLOAD_PACKAGES: 'True'
       win_64_numpy1.19python3.7.____cpythonpython_implcpython:
         CONFIG: win_64_numpy1.19python3.7.____cpythonpython_implcpython
         UPLOAD_PACKAGES: 'True'
+      win_64_numpy1.19python3.8.____73_pypypython_implpypy:
+        CONFIG: win_64_numpy1.19python3.8.____73_pypypython_implpypy
+        UPLOAD_PACKAGES: 'True'
       win_64_numpy1.19python3.8.____cpythonpython_implcpython:
         CONFIG: win_64_numpy1.19python3.8.____cpythonpython_implcpython
+        UPLOAD_PACKAGES: 'True'
+      win_64_numpy1.19python3.9.____73_pypypython_implpypy:
+        CONFIG: win_64_numpy1.19python3.9.____73_pypypython_implpypy
         UPLOAD_PACKAGES: 'True'
       win_64_numpy1.19python3.9.____cpythonpython_implcpython:
         CONFIG: win_64_numpy1.19python3.9.____cpythonpython_implcpython
@@ -65,10 +68,12 @@ jobs:
         call activate base
         run_conda_forge_build_setup
       displayName: conda-forge build setup
-    
 
     - script: |
         call activate base
+        if EXIST LICENSE.txt (
+          copy LICENSE.txt "recipe\\recipe-scripts-license.txt"
+        )
         conda.exe mambabuild "recipe" -m .ci_support\%CONFIG%.yaml --suppress-variables
       displayName: Build recipe
       env:
