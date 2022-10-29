@@ -12,7 +12,7 @@ source:
   # sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
 
 build:
-  number: 1
+  number: 2
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
@@ -114,9 +114,9 @@ about:
   license_file: LICENSE.txt
   summary: Image processing in Python.
   description: |
-    scikit-image is a collection of algorithms for image processing. 
-    It is available free of charge and free of restriction. 
-    We pride ourselves on high-quality, peer-reviewed code, 
+    scikit-image is a collection of algorithms for image processing.
+    It is available free of charge and free of restriction.
+    We pride ourselves on high-quality, peer-reviewed code,
     written by an active community of volunteers.
 
 extra:
