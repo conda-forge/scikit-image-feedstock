@@ -12,7 +12,7 @@ source:
   # sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
 
 build:
-  number: 1
+  number: 2
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
@@ -47,12 +47,13 @@ requirements:
     - pywavelets >=1.1.1
     - packaging >=20.0
     # scikit-image depends on dask-array
+    # but pypy doesn't support it
     # which requires numpy, dask-core and toolz (cytoolz for speed)
-    - dask-core >=1.0.0,!=2.17.0
-    - toolz >=0.7.3
-    - cytoolz >=0.7.3  # [python_impl == 'cpython']
+    - dask-core >=1.0.0,!=2.17.0  # [python_impl == 'cpython']
+    - toolz >=0.7.3               # [python_impl == 'cpython']
+    - cytoolz >=0.7.3             # [python_impl == 'cpython']
     # cloudpickle is necessary to provide the 'processes' scheduler for dask
-    - cloudpickle >=0.2.1
+    - cloudpickle >=0.2.1         # [python_impl == 'cpython']
   run_constrained:
     - matplotlib-base >=3.0.3
     - pooch >=1.3.0
@@ -85,11 +86,15 @@ requirements:
 # It seems that the apply_parallel tests can have relatively small errors on windows
 {% set tests_to_skip = tests_to_skip + " or test_apply_parallel_rgb" %}  # [win]
 
+
 # skip known failure on Windows PyPy builds
 {% set tests_to_skip = tests_to_skip + " or test_hough_ellipse_zero_angle or test_hough_ellipse_non_zero" %}  # [win and (python_impl == 'pypy')]
 # This used to be a known failure in Python 3.4 that resurfaced in PyPy3.7
 # https://github.com/conda-forge/scikit-image-feedstock/pull/91#issuecomment-1153888057
-{% set tests_to_skip = tests_to_skip + " or test_wrap_aroun" %}  # [python_impl == 'pypy']
+{% set tests_to_skip = tests_to_skip + " or test_wrap_around" %}  # [python_impl == 'pypy']
+# uses get_sizeof which returns an error on pypy
+{% set tests_to_skip = tests_to_skip + " or test_dask_histogram" %}  # [python_impl == 'pypy']
+{% set tests_to_skip = tests_to_skip + " or test_apply_parallel_rgb_channel_axis" %}  # [python_impl == 'pypy']
 
 test:
   requires:
@@ -114,9 +119,9 @@ about:
   license_file: LICENSE.txt
   summary: Image processing in Python.
   description: |
-    scikit-image is a collection of algorithms for image processing. 
-    It is available free of charge and free of restriction. 
-    We pride ourselves on high-quality, peer-reviewed code, 
+    scikit-image is a collection of algorithms for image processing.
+    It is available free of charge and free of restriction.
+    We pride ourselves on high-quality, peer-reviewed code,
     written by an active community of volunteers.
 
 extra:
