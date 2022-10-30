@@ -47,12 +47,13 @@ requirements:
     - pywavelets >=1.1.1
     - packaging >=20.0
     # scikit-image depends on dask-array
+    # but pypy doesn't support it
     # which requires numpy, dask-core and toolz (cytoolz for speed)
-    - dask-core >=1.0.0,!=2.17.0
-    - toolz >=0.7.3
-    - cytoolz >=0.7.3  # [python_impl == 'cpython']
+    - dask-core >=1.0.0,!=2.17.0  # [python_impl == 'cpython']
+    - toolz >=0.7.3               # [python_impl == 'cpython']
+    - cytoolz >=0.7.3             # [python_impl == 'cpython']
     # cloudpickle is necessary to provide the 'processes' scheduler for dask
-    - cloudpickle >=0.2.1
+    - cloudpickle >=0.2.1         # [python_impl == 'cpython']
   run_constrained:
     - matplotlib-base >=3.0.3
     - pooch >=1.3.0
