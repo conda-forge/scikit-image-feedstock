@@ -10,3 +10,5 @@ conda_forge_output_validation: true
 #   upload_packages: True
 #   # I only want azure to build and upload windows
 #   force: False
+conda_build:
+  pkg_format: '2'
