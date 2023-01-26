@@ -126,6 +126,7 @@ about:
 
 extra:
   recipe-maintainers:
+    - stefanv
     - jakirkham
     - jni
     - msarahan
