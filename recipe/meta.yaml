@@ -1,18 +1,18 @@
-{% set version = "0.19.3" %}
+{% set version = "0.20.0" %}
 
 package:
   name: scikit-image
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
-  sha256: 24b5367de1762da6ee126dd8f30cc4e7efda474e0d7d70685433f0e3aa2ec450
+  url: https://pypi.io/packages/source/scikit-image/scikit-image-{{ version }}.tar.gz
+  sha256: 2cd784fce18bd31d71ade62c6221440199ead03acf7544086261ee032264cf61
   # url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
   # fn: scikit-image-{{ version }}.tar.gz
   # sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
 
 build:
-  number: 2
+  number: 0
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
