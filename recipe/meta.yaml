@@ -32,8 +32,8 @@ requirements:
     - python
     - pip
     - cython >=0.29.24,!=0.29.18
-    - meson-python                           # [unix]
-    - ninja                                  # [unix]
+    - meson-python
+    - ninja
     - numpy >=1.21.1
     - pythran
     - packaging >=20.0
