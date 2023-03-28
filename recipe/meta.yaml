@@ -23,7 +23,6 @@ requirements:
     - cython                                 # [build_platform != target_platform]
     - numpy 1.21.*                           # [build_platform != target_platform and py<310]
     - numpy                                  # [build_platform != target_platform and py>=310]
-    - meson-python                           # [build_platform != target_platform]
     - ninja                                  # [build_platform != target_platform]
     # pythran code needs clang-cl on windows
     - clang                                  # [win]
