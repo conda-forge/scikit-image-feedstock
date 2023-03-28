@@ -21,6 +21,7 @@ requirements:
           # See
           # https://docs.conda.io/projects/conda-build/en/stable/resources/define-metadata.html#requirements-section
     - python                                 # [build_platform != target_platform]
+    - numpy                                  # [build_platform != target_platform]
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     # pythran code needs clang-cl on windows
     - clang                                  # [win]
@@ -28,10 +29,10 @@ requirements:
     - {{ compiler("cxx") }}
   host:  # target platform emulator
     - python                                 # [build_platform == target_platform]
+    - numpy                                  # [build_platform == target_platform]
     - meson-python
     - ninja
     - cython
-    - numpy
     - pythran
     - pip
     - packaging >=20.0
