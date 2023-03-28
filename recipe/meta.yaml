@@ -24,9 +24,9 @@ requirements:
     - numpy                                  # [build_platform != target_platform]
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     # pythran code needs clang-cl on windows
-    - clang                                  # [win]
     - {{ compiler("c") }}
     - {{ compiler("cxx") }}
+    - clang                                  # [win]
   host:  # target platform emulator
     - python                                 # [build_platform == target_platform]
     - numpy                                  # [build_platform == target_platform]
