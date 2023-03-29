@@ -9,4 +9,4 @@ ${PYTHON} $(which meson) setup ${MESON_ARGS} \
     builddir || (cat builddir/meson-logs/meson-log.txt && exit 1)
 
 ${PYTHON} -m build --wheel --no-isolation --skip-dependency-check -Cbuilddir=builddir
-${PYTHON} -m pip install dist/scikit-image*.whl
+${PYTHON} -m pip install dist/scikit_image*.whl
