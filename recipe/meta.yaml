@@ -31,6 +31,7 @@ requirements:
     - {{ compiler("cxx") }}
   host:
     - python
+    - python-build
     - pip
     - libclang-cpp                           # [win]
     - cython >=0.29.24,!=0.29.18
