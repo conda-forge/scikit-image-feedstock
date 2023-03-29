@@ -34,7 +34,7 @@ requirements:
     - cython >=0.29.24,!=0.29.18
     - meson-python
     - ninja
-    - numpy >=1.21.1
+    - numpy
     - pythran
     - packaging >=20.0
   run:
