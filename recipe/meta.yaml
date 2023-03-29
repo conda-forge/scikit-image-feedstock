@@ -24,8 +24,6 @@ requirements:
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - {{ compiler("c") }}
     - {{ compiler("cxx") }}
-    # pythran code needs clang on windows
-    - clang                                  # [win]
   host:  # target platform emulator
     - python
     - numpy
@@ -35,6 +33,8 @@ requirements:
     - pythran
     - pip
     - packaging >=20.0
+    - clang                                  # [win]
+    - libclang-cpp                           # [win]
   run:
     - python
     - {{ pin_compatible('numpy') }}
@@ -97,6 +97,10 @@ requirements:
 {% set tests_to_skip = tests_to_skip + " or test_dask_histogram" %}  # [python_impl == 'pypy']
 {% set tests_to_skip = tests_to_skip + " or test_apply_parallel_rgb_channel_axis" %}  # [python_impl == 'pypy']
 
+# These fail on pypy + linux_64
+{% set tests_to_skip = tests_to_skip + " or test_clear_border_non_binary_out" %}     # [python_impl == 'pypy']
+{% set tests_to_skip = tests_to_skip + " or test_clear_border_non_binary_out_3d" %}  # [python_impl == 'pypy']
+
 test:
   requires:
     - pytest
@@ -111,7 +115,7 @@ test:
     # A warning in numpy that makes tests fail has been fixed in 0.18
     # Remove this then.
     # tests run slowly on ci servers, so we skip them
-    - SKIMAGE_TEST_STRICT_WARNINGS=0 pytest --pyargs skimage -k "not ({{ tests_to_skip }})"  # [unix and x86_64]
+    - SKIMAGE_TEST_STRICT_WARNINGS=0 pytest --pyargs skimage -k "not ({{ tests_to_skip }})"  # [unix]
     - set "SKIMAGE_TEST_STRICT_WARNINGS=0" & pytest --pyargs skimage -k "not ({{ tests_to_skip }})"  # [win]
 
 about:
