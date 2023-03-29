@@ -33,7 +33,7 @@ requirements:
     - python
     - python-build
     - pip
-    - libclang-cpp                           # [win]
+    # - libclang-cpp                           # [win]
     - cython >=0.29.24,!=0.29.18
     - meson-python  # [build_platform == target_platform]
     - ninja         # [build_platform != target_platform]
