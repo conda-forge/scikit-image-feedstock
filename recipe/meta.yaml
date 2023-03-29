@@ -26,6 +26,7 @@ requirements:
     - {{ compiler("cxx") }}
   host:  # target platform emulator
     - python
+    - python-build
     - numpy
     - meson-python
     - ninja
