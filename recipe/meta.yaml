@@ -21,14 +21,13 @@ requirements:
           # See
           # https://docs.conda.io/projects/conda-build/en/stable/resources/define-metadata.html#requirements-section
     - python                                 # [build_platform != target_platform]
-    - numpy                                  # [build_platform != target_platform]
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - {{ compiler("c") }}
     - {{ compiler("cxx") }}
     # pythran code needs clang on windows
     - clang                                  # [win]
   host:  # target platform emulator
-    - python                                 # [build_platform == target_platform]
+    - python
     - numpy
     - meson-python
     - ninja
