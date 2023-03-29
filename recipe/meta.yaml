@@ -29,7 +29,7 @@ requirements:
     - clang                                  # [win]
   host:  # target platform emulator
     - python                                 # [build_platform == target_platform]
-    - numpy                                  # [build_platform == target_platform]
+    - numpy
     - meson-python
     - ninja
     - cython
