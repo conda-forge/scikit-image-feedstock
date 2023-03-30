@@ -22,27 +22,24 @@ requirements:
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - cython                                 # [build_platform != target_platform]
     - numpy                                  # [build_platform != target_platform]
-    - meson-python                           # [build_platform != target_platform]
-    - ninja                                  # [build_platform != target_platform]
+    - ninja                                  # [unix]
     - pkg-config                             # [unix]
     # pythran code needs clang-cl on windows
-    - llvmdev                                # [win]
-    - {{ compiler("c") }}                    # [not win]
-    - {{ compiler("cxx") }}                  # [not win]
+    - clang                                  # [win]
+    - {{ compiler("c") }}
+    - {{ compiler("cxx") }}
   host:
     - python
     - python-build
     - pip
-    # - libclang-cpp                           # [win]
     - cython >=0.29.24,!=0.29.18
-    - meson-python  # [build_platform == target_platform]
-    - ninja         # [build_platform != target_platform]
+    - meson-python
     - numpy
     - pythran
     - packaging >=20.0
   run:
     - python
-    - {{ pin_compatible('numpy') }}
+    - numpy
     - scipy >=1.8
     - networkx >=2.8
     - pillow >=9.0.1
