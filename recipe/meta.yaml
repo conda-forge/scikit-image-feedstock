@@ -26,9 +26,9 @@ requirements:
     - ninja                                  # [build_platform != target_platform]
     - pkg-config                             # [unix]
     # pythran code needs clang-cl on windows
-    - clang                                  # [win]
-    - {{ compiler("c") }}
-    - {{ compiler("cxx") }}
+    - llvm                                   # [win]
+    - {{ compiler("c") }}                    # [not win]
+    - {{ compiler("cxx") }}                  # [not win]
   host:
     - python
     - python-build
