@@ -2,13 +2,13 @@
 
 REM Use clang for pythran support
 REM
-REM check if clang-cl is on path as required
-clang-cl.exe --version
+REM check if clang is on path as required
+clang.exe --version
 if %ERRORLEVEL% neq 0 exit 1
 
 REM set compilers to clang-cl
-set "CC=clang-cl"
-set "CXX=clang-cl"
+set "CC=clang"
+set "CXX=clang"
 
 REM clang-cl & gfortran use different LDFLAGS; unset it
 set "LDFLAGS="
