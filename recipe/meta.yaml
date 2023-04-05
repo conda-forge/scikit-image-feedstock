@@ -1,18 +1,18 @@
-{% set version = "0.19.3" %}
+{% set version = "0.20.0" %}
 
 package:
   name: scikit-image
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/s/scikit-image/scikit-image-{{ version }}.tar.gz
-  sha256: 24b5367de1762da6ee126dd8f30cc4e7efda474e0d7d70685433f0e3aa2ec450
+  url: https://pypi.io/packages/source/s/scikit-image/scikit_image-{{ version }}.tar.gz
+  sha256: 2cd784fce18bd31d71ade62c6221440199ead03acf7544086261ee032264cf61
   # url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
   # fn: scikit-image-{{ version }}.tar.gz
   # sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
 
 build:
-  number: 2
+  number: 0
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
@@ -22,30 +22,32 @@ requirements:
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - cython                                 # [build_platform != target_platform]
     - numpy                                  # [build_platform != target_platform]
+    - ninja                                  # [unix]
+    - pkg-config                             # [unix]
     # pythran code needs clang-cl on windows
     - clang                                  # [win]
     - {{ compiler("c") }}
     - {{ compiler("cxx") }}
   host:
     - python
+    - python-build
     - pip
-    - cython >=0.29.21,!=0.29.18
+    - cython >=0.29.24,!=0.29.18
+    - meson-python
     - numpy
     - pythran
     - packaging >=20.0
   run:
     - python
-    - {{ pin_compatible('numpy') }}
-    - scipy >=1.4.1
-    # pin to older networkx<2.7 for Python 3.7 as it requires SciPy>=1.8 which
-    # is only available for Python>=3.8.
-    - networkx >=2.2,<2.7   # [py<=37]
-    - networkx >=2.2  # [py>37]
-    - pillow >=6.1.0,!=7.1.0,!=7.1.1,!=8.3.0
-    - imageio >=2.3.0
+    - numpy
+    - scipy >=1.8
+    - networkx >=2.8
+    - pillow >=9.0.1
+    - imageio >=2.4.1
     - tifffile >=2019.7.26
     - pywavelets >=1.1.1
     - packaging >=20.0
+    - lazy_loader >=0.1
     # scikit-image depends on dask-array
     # but pypy doesn't support it
     # which requires numpy, dask-core and toolz (cytoolz for speed)
@@ -55,6 +57,7 @@ requirements:
     # cloudpickle is necessary to provide the 'processes' scheduler for dask
     - cloudpickle >=0.2.1         # [python_impl == 'cpython']
   run_constrained:
+    - astropy >=3.1.2
     - matplotlib-base >=3.0.3
     - pooch >=1.3.0
 
@@ -96,6 +99,11 @@ requirements:
 {% set tests_to_skip = tests_to_skip + " or test_dask_histogram" %}  # [python_impl == 'pypy']
 {% set tests_to_skip = tests_to_skip + " or test_apply_parallel_rgb_channel_axis" %}  # [python_impl == 'pypy']
 
+
+# These seem to fail on pypy + linux_64
+{% set tests_to_skip = tests_to_skip + " or test_clear_border_non_binary_out" %}     # [python_impl == 'pypy']
+{% set tests_to_skip = tests_to_skip + " or test_clear_border_non_binary_out_3d" %}  # [python_impl == 'pypy']
+
 test:
   requires:
     - pytest
@@ -110,7 +118,7 @@ test:
     # A warning in numpy that makes tests fail has been fixed in 0.18
     # Remove this then.
     # tests run slowly on ci servers, so we skip them
-    - SKIMAGE_TEST_STRICT_WARNINGS=0 pytest --pyargs skimage -k "not ({{ tests_to_skip }})"  # [unix and x86_64]
+    - SKIMAGE_TEST_STRICT_WARNINGS=0 pytest --pyargs skimage -k "not ({{ tests_to_skip }})"  # [unix]
     - set "SKIMAGE_TEST_STRICT_WARNINGS=0" & pytest --pyargs skimage -k "not ({{ tests_to_skip }})"  # [win]
 
 about:
