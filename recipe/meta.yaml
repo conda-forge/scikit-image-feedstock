@@ -12,7 +12,7 @@ source:
   # sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
 
 build:
-  number: 0
+  number: 1
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
@@ -40,7 +40,8 @@ requirements:
   run:
     - python
     - numpy
-    - scipy >=1.8
+    - scipy >=1.8,<1.9.2  # [py <= 39]
+    - scipy >=1.8  # [py > 39]
     - networkx >=2.8
     - pillow >=9.0.1
     - imageio >=2.4.1
@@ -110,9 +111,11 @@ test:
     - pytest-localserver
     # Include pooch to ensure full test coverage
     - pooch  # [not (ppc64le or aarch64)]
+    - pip
   imports:
     - skimage
   commands:
+    - pip check
     - setx MPLBACKEND "Agg"  # [win]
     - export MPLBACKEND=Agg  # [unix]
     # A warning in numpy that makes tests fail has been fixed in 0.18
