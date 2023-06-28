@@ -118,7 +118,8 @@ test:
   imports:
     - skimage
   commands:
-    - pip check
+    # 2023/06/28 -- Seems like pypy + scipy's pip check is broken
+    - pip check              # [python_impl == 'cpython']
     - setx MPLBACKEND "Agg"  # [win]
     - export MPLBACKEND=Agg  # [unix]
     # A warning in numpy that makes tests fail has been fixed in 0.18
