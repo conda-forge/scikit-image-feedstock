@@ -42,8 +42,7 @@ requirements:
   run:
     - python
     - {{ pin_compatible('numpy') }}
-    - scipy >=1.8,<1.9.2  # [py <= 39]
-    - scipy >=1.8  # [py > 39]
+    - scipy >=1.8
     - networkx >=2.8
     - pillow >=9.0.1
     - imageio >=2.27
