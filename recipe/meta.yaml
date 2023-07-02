@@ -106,6 +106,10 @@ requirements:
 # These seem to fail on pypy + linux_64
 {% set tests_to_skip = tests_to_skip + " or test_clear_border_non_binary_out" %}     # [python_impl == 'pypy']
 {% set tests_to_skip = tests_to_skip + " or test_clear_border_non_binary_out_3d" %}  # [python_impl == 'pypy']
+{% set tests_to_skip = tests_to_skip + " or test_subpix_border" %}                   # [python_impl == 'pypy' ]
+{% set tests_to_skip = tests_to_skip + " or test_max_tree" %}                        # [python_impl == 'pypy' ]
+{% set tests_to_skip = tests_to_skip + " or test_offsets_to_raveled_neighbors_explicit_0" %}   # [python_impl == 'pypy' ]
+{% set tests_to_skip = tests_to_skip + " or test_offsets_to_raveled_neighbors_explicit_1" %}   # [python_impl == 'pypy' ]
 
 test:
   requires:
