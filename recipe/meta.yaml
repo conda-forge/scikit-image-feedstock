@@ -113,6 +113,8 @@ requirements:
 {% set tests_to_skip = tests_to_skip + " or test_offsets_to_raveled_neighbors_explicit_0" %}   # [python_impl == 'cpython' ]
 {% set tests_to_skip = tests_to_skip + " or test_offsets_to_raveled_neighbors_explicit_1" %}   # [python_impl == 'cpython' ]
 
+# Performance based test, best left for upstream and not conda-forge packaging
+{% set tests_to_skip = tests_to_skip + " or test_max_batch_size" %}
 test:
   requires:
     - pytest
