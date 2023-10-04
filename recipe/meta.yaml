@@ -122,6 +122,7 @@ test:
     # Include pooch to ensure full test coverage
     - pooch  # [not (ppc64le or aarch64)]
     - pip
+    - numpydoc
   imports:
     - skimage
   commands:
