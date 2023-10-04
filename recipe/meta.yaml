@@ -40,7 +40,7 @@ requirements:
     - pythran
     - packaging >=20.0
   run:
-    - python
+    - python >=3.9
     - {{ pin_compatible('numpy') }}
     - scipy >=1.8
     - networkx >=2.8
