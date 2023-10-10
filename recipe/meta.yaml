@@ -13,7 +13,7 @@ source:
 
 build:
   skip: True  # [py<39]
-  number: 0
+  number: 1
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
@@ -34,7 +34,7 @@ requirements:
     - python
     - python-build
     - pip
-    - cython >=0.29.24,!=0.29.18
+    - cython >=0.29.24,!=0.29.18,!=3.0.3
     - meson-python
     - numpy 1.22                             # [py<311]
     - numpy 1.23                             # [py==311]
