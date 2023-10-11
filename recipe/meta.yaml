@@ -22,8 +22,7 @@ requirements:
     - python                                 # [build_platform != target_platform]
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - cython                                 # [build_platform != target_platform]
-    - numpy 1.22                             # [build_platform != target_platform and py<311]
-    - numpy 1.23                             # [build_platform != target_platform and py==311]
+    - numpy                                  # [build_platform != target_platform]
     - ninja                                  # [unix]
     - pkg-config                             # [unix]
     # pythran code needs clang-cl on windows
@@ -36,8 +35,7 @@ requirements:
     - pip
     - cython >=0.29.24,!=0.29.18,!=3.0.3
     - meson-python
-    - numpy 1.22                             # [py<311]
-    - numpy 1.23                             # [py==311]
+    - numpy
     - pythran
     - packaging >=20.0
   run:
