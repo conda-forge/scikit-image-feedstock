@@ -1,4 +1,6 @@
 {% set version = "0.23.2" %}
+# Add back python 3.9 support later
+# See https://github.com/scikit-image/scikit-image/pull/7412
 
 package:
   name: scikit-image
@@ -12,13 +14,7 @@ source:
   # sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
 
 build:
-{{ if version == "0.23.2" }}
   skip: true  # [py<310]
-{{ else }}
-  # Add back python 3.9 support later
-  # See https://github.com/scikit-image/scikit-image/pull/7412
-  skip: true  # [py<39]
-{{ endif }}
   number: 0
   entry_points:
     - skivi = skimage.scripts.skivi:main
