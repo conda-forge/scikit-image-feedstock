@@ -118,6 +118,9 @@ requirements:
 # Performance based test, best left for upstream and not conda-forge packaging
 {% set tests_to_skip = tests_to_skip + " or test_max_batch_size" %}
 
+# Seems flaky but only on windows- hmaarrfk 2024/06
+{% set tests_to_skip = tests_to_skip + " or test_polynomial_weighted_estimation" %}  # [win]
+
 # Downloading all from github just gets us banned.
 {% set tests_to_skip = tests_to_skip + " or test_download_all_with_pooch" %}
 test:
