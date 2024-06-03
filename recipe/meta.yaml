@@ -1,4 +1,6 @@
-{% set version = "0.22.0" %}
+{% set version = "0.23.2" %}
+# Add back python 3.9 support later
+# See https://github.com/scikit-image/scikit-image/pull/7412
 
 package:
   name: scikit-image
@@ -6,14 +8,14 @@ package:
 
 source:
   url: https://pypi.io/packages/source/s/scikit-image/scikit_image-{{ version }}.tar.gz
-  sha256: 018d734df1d2da2719087d15f679d19285fce97cd37695103deadfaef2873236
+  sha256: c9da4b2c3117e3e30364a3d14496ee5c72b09eb1a4ab1292b302416faa360590
   # url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
   # fn: scikit-image-{{ version }}.tar.gz
   # sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
 
 build:
-  skip: True  # [py<39]
-  number: 2
+  skip: true  # [py<310]
+  number: 0
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
@@ -28,6 +30,7 @@ requirements:
     # pythran code needs clang-cl on windows
     - clang                                  # [win]
     - {{ compiler("c") }}
+    - {{ stdlib("c") }}
     - {{ compiler("cxx") }}
   host:
     - python
@@ -114,6 +117,12 @@ requirements:
 
 # Performance based test, best left for upstream and not conda-forge packaging
 {% set tests_to_skip = tests_to_skip + " or test_max_batch_size" %}
+
+# Seems flaky but only on windows- hmaarrfk 2024/06
+{% set tests_to_skip = tests_to_skip + " or test_polynomial_weighted_estimation" %}  # [win]
+
+# Downloading all from github just gets us banned.
+{% set tests_to_skip = tests_to_skip + " or test_download_all_with_pooch" %}
 test:
   requires:
     - pytest

@@ -12,14 +12,6 @@ jobs:
         CONFIG: linux_64_numpy1.22python3.10.____cpythonpython_implcpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-      linux_64_numpy1.22python3.9.____73_pypypython_implpypy:
-        CONFIG: linux_64_numpy1.22python3.9.____73_pypypython_implpypy
-        UPLOAD_PACKAGES: 'True'
-        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-      linux_64_numpy1.22python3.9.____cpythonpython_implcpython:
-        CONFIG: linux_64_numpy1.22python3.9.____cpythonpython_implcpython
-        UPLOAD_PACKAGES: 'True'
-        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
       linux_64_numpy1.23python3.11.____cpythonpython_implcpython:
         CONFIG: linux_64_numpy1.23python3.11.____cpythonpython_implcpython
         UPLOAD_PACKAGES: 'True'
@@ -30,14 +22,6 @@ jobs:
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
       linux_aarch64_numpy1.22python3.10.____cpythonpython_implcpython:
         CONFIG: linux_aarch64_numpy1.22python3.10.____cpythonpython_implcpython
-        UPLOAD_PACKAGES: 'True'
-        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-      linux_aarch64_numpy1.22python3.9.____73_pypypython_implpypy:
-        CONFIG: linux_aarch64_numpy1.22python3.9.____73_pypypython_implpypy
-        UPLOAD_PACKAGES: 'True'
-        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-      linux_aarch64_numpy1.22python3.9.____cpythonpython_implcpython:
-        CONFIG: linux_aarch64_numpy1.22python3.9.____cpythonpython_implcpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
       linux_aarch64_numpy1.23python3.11.____cpythonpython_implcpython:
@@ -52,14 +36,6 @@ jobs:
         CONFIG: linux_ppc64le_numpy1.22python3.10.____cpythonpython_implcpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-      linux_ppc64le_numpy1.22python3.9.____73_pypypython_implpypy:
-        CONFIG: linux_ppc64le_numpy1.22python3.9.____73_pypypython_implpypy
-        UPLOAD_PACKAGES: 'True'
-        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-      linux_ppc64le_numpy1.22python3.9.____cpythonpython_implcpython:
-        CONFIG: linux_ppc64le_numpy1.22python3.9.____cpythonpython_implcpython
-        UPLOAD_PACKAGES: 'True'
-        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
       linux_ppc64le_numpy1.23python3.11.____cpythonpython_implcpython:
         CONFIG: linux_ppc64le_numpy1.23python3.11.____cpythonpython_implcpython
         UPLOAD_PACKAGES: 'True'
@@ -69,6 +45,7 @@ jobs:
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
   timeoutInMinutes: 360
+  variables: {}
 
   steps:
   # configure qemu binfmt-misc running.  This allows us to run docker containers
@@ -81,6 +58,9 @@ jobs:
 
   - script: |
         export CI=azure
+        export flow_run_id=azure_$(Build.BuildNumber).$(System.JobAttempt)
+        export remote_url=$(Build.Repository.Uri)
+        export sha=$(Build.SourceVersion)
         export GIT_BRANCH=$BUILD_SOURCEBRANCHNAME
         export FEEDSTOCK_NAME=$(basename ${BUILD_REPOSITORY_NAME})
         if [[ "${BUILD_REASON:-}" == "PullRequest" ]]; then
