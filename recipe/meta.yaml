@@ -117,6 +117,9 @@ requirements:
 
 # Performance based test, best left for upstream and not conda-forge packaging
 {% set tests_to_skip = tests_to_skip + " or test_max_batch_size" %}
+
+# Downloading all from github just gets us banned.
+{% set tests_to_skip = tests_to_skip + " or test_download_all_with_pooch" %}
 test:
   requires:
     - pytest
