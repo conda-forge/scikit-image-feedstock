@@ -15,7 +15,7 @@ source:
 
 build:
   skip: true  # [py<39]
-  number: 0
+  number: 1
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
@@ -43,7 +43,6 @@ requirements:
     - packaging >=20.0
   run:
     - python
-    - {{ pin_compatible('numpy') }}
     - scipy >=1.8
     - networkx >=2.8
     - pillow >=9.0.1
