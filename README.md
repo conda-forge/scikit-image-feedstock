@@ -374,6 +374,3 @@ Feedstock Maintainers
 * [@soupault](https://github.com/soupault/)
 * [@stefanv](https://github.com/stefanv/)
 
-
-<!-- dummy commit to enable rerendering -->
-
