@@ -9,13 +9,10 @@ package:
 source:
   url: https://pypi.io/packages/source/s/scikit-image/scikit_image-{{ version }}.tar.gz
   sha256: 5d16efe95da8edbeb363e0c4157b99becbd650a60b77f6e3af5768b66cf007ab
-  # url: https://github.com/scikit-image/scikit-image/archive/v{{ version }}.tar.gz
-  # fn: scikit-image-{{ version }}.tar.gz
-  # sha256: 3b8414ccb9b524d0d507909e9a4d3843af6ca9919152199d380f2b21639abf17
 
 build:
   skip: true  # [py<39]
-  number: 1
+  number: 2
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
@@ -52,6 +49,11 @@ requirements:
     - packaging >=21
     - lazy_loader >=0.2
   run_constrained:
+    # numpy's run_export sets the lower bound to be 1.19
+    # https://github.com/conda-forge/numpy-feedstock/issues/324
+    # We must set the lower bound in accordance to scikit-image's
+    # runtime requirements
+    - numpy >=1.23
     # scikit-image optionally depends on dask-array
     # but pypy doesn't support it
     # which requires numpy, dask-core and toolz (cytoolz for speed)
