@@ -49,8 +49,10 @@ requirements:
     - packaging >=21
     - lazy_loader >=0.2
   run_constrained:
-    # Numpy pinnings set the lower bound to be 1.19
+    # numpy's run_export sets the lower bound to be 1.19
     # https://github.com/conda-forge/numpy-feedstock/issues/324
+    # We must set the lower bound in accordance to scikit-image's
+    # runtime requirements
     - numpy >=1.23
     # scikit-image optionally depends on dask-array
     # but pypy doesn't support it
