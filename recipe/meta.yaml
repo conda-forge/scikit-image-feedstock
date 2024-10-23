@@ -155,6 +155,8 @@ about:
     It is available free of charge and free of restriction.
     We pride ourselves on high-quality, peer-reviewed code,
     written by an active community of volunteers.
+  doc_url: https://scikit-image.org/docs/stable/
+  dev_url: https://github.com/scikit-image/scikit-image
 
 extra:
   recipe-maintainers:
