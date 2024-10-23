@@ -9,6 +9,10 @@ Package license: BSD-3-Clause
 
 Summary: Image processing in Python.
 
+Development: https://github.com/scikit-image/scikit-image
+
+Documentation: https://scikit-image.org/docs/stable/
+
 scikit-image is a collection of algorithms for image processing.
 It is available free of charge and free of restriction.
 We pride ourselves on high-quality, peer-reviewed code,
