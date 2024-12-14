@@ -1,6 +1,4 @@
 {% set version = "0.25.0" %}
-# Add back python 3.9 support later
-# See https://github.com/scikit-image/scikit-image/pull/7412
 
 package:
   name: scikit-image
