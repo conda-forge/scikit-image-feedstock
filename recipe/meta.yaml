@@ -9,6 +9,7 @@ source:
   sha256: 58d94fea11b6b3306b3770417dc1cbca7fa9bcbd6a13945d7910399c88c2018c
 
 build:
+  skip: true  # [py<310]
   number: 0
   entry_points:
     - skivi = skimage.scripts.skivi:main
