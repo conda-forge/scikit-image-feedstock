@@ -10,7 +10,7 @@ source:
 
 build:
   skip: true  # [py<310]
-  number: 0
+  number: 1
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
