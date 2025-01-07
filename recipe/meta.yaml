@@ -10,7 +10,7 @@ source:
 
 build:
   skip: true  # [py<310]
-  number: 0
+  number: 1
   entry_points:
     - skivi = skimage.scripts.skivi:main
 
@@ -37,33 +37,36 @@ requirements:
     - pythran
     - packaging >=20.0
   run:
+    # https://github.com/scikit-image/scikit-image/blob/main/pyproject.toml#L28
     - python
-    - scipy >=1.8
-    - networkx >=2.8
-    - pillow >=9.0.1
-    - imageio >=2.27
+    - scipy >=1.11.2
+    - networkx >=3.0
+    - pillow >=10.1
+    - imageio >=2.33,!=2.35.0
     - tifffile >=2022.8.12
     - pywavelets >=1.1.1
     - packaging >=21
-    - lazy_loader >=0.2
+    - lazy_loader >=0.4
   run_constrained:
     # numpy's run_export sets the lower bound to be 1.19
     # https://github.com/conda-forge/numpy-feedstock/issues/324
     # We must set the lower bound in accordance to scikit-image's
     # runtime requirements
-    - numpy >=1.23
+    - numpy >=1.24
     # scikit-image optionally depends on dask-array
     # but pypy doesn't support it
     # which requires numpy, dask-core and toolz (cytoolz for speed)
-    - dask-core >=2021.1.0        # [python_impl == 'cpython']
+    - dask-core >=2022.11.0,!=2024.8.0        # [python_impl == 'cpython']
     - toolz >=0.10.0              # [python_impl == 'cpython']
     - cytoolz >=0.11.0            # [python_impl == 'cpython']
     # cloudpickle is necessary to provide the 'processes' scheduler for dask
-    - cloudpickle >=0.2.1         # [python_impl == 'cpython']
-    - astropy >=5.0
-    - matplotlib-base >=3.5
+    - cloudpickle >=3.0         # [python_impl == 'cpython']
+    - astropy >=6.0
+    - matplotlib-base >=3.7
     - pooch >=1.6.0
-    - scikit-learn >=1.0
+    - scikit-learn >=1.2
+    - pyamg >=5.2
+    - pywavelets >=1.6
 
 # Issues reported upstream. Follow
 # https://github.com/scikit-image/scikit-image/issues/4768
