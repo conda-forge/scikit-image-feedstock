@@ -56,6 +56,7 @@ requirements:
     - numpy >=1.24
     # scikit-image optionally depends on dask-array
     - dask-core >=2023.2.0,!=2024.8.0        # [python_impl == 'cpython']
+    - astropy-base >=6.0
     - matplotlib-base >=3.7
     - pooch >=1.6.0
     - scikit-learn >=1.2
