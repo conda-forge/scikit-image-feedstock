@@ -3,6 +3,7 @@ schema_version: 1
 
 context:
   version: "0.26.0"
+  python_min: "3.11"
   cython_min: "3.0.8"
   lazy_loader_min: "0.4"
   meson_python_min: "0.16"
@@ -19,6 +20,7 @@ source:
   sha256: f5f970ab04efad85c24714321fcc91613fcb64ef2a892a13167df2f3e59199fa
 
 build:
+  skip: match(python, "<" ~ python_min)
   number: 0
   script:
     file: build-scikit-image
