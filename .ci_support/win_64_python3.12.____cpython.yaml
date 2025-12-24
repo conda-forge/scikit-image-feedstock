@@ -18,5 +18,7 @@ python:
 - 3.12.* *_cpython
 python_impl:
 - cpython
+python_min:
+- '3.10'
 target_platform:
 - win-64

@@ -30,6 +30,8 @@ python:
 - 3.14.* *_cp314
 python_impl:
 - cpython
+python_min:
+- '3.10'
 target_platform:
 - osx-64
 zip_keys:
