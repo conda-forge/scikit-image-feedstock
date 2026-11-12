@@ -18,6 +18,9 @@ package:
 source:
   url: https://pypi.org/packages/source/s/scikit-image/scikit_image-${{ version }}.tar.gz
   sha256: f5f970ab04efad85c24714321fcc91613fcb64ef2a892a13167df2f3e59199fa
+  patches:
+    # numpy >=2.5 compatibility of EllipseModel, from scikit-image 0.27
+    - patches/0001-ellipse-fit-numpy-2.5.patch
 
 build:
   skip: match(python, "<" ~ python_min)
