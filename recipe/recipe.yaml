@@ -157,6 +157,11 @@ tests:
 
             {#- Downloading all from github just gets us banned. -#}
             ${{- " or test_download_all_with_pooch" -}}
+
+            {#- SciPy >=1.18 deprecates spatial.minkowski_distance (used by CircleModel); the warning breaks the stacklevel checks of these tests -#}
+            ${{- " or test_circle_model_estimate or test_circle_model_int_overflow or test_init_estimate_deprecations" -}}
+            {#- Expects one deprecation warning but gets two with recent dependencies -#}
+            ${{- " or test_deprecation_warnings_on_plugin_funcs" -}}
           )"
 
 about:
