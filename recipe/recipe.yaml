@@ -149,8 +149,8 @@ tests:
             {#- Performance based test, best left for upstream and not conda-forge packaging -#}
             ${{- " or test_max_batch_size" -}}
 
-            {#- Seems flaky but only on windows- hmaarrfk 2024/06 -#}
-            ${{- " or test_polynomial_weighted_estimation" if win -}}
+            {#- Seems flaky, first on windows (hmaarrfk 2024/06), now on linux too -#}
+            ${{- " or test_polynomial_weighted_estimation" -}}
 
             {#- This tests fails with regex comparison on during the python314 migration, and this skip should likely be removed at the next version update -#}
             ${{- " or test_wrong_param_name" if match(python, "3.14.*") -}}
@@ -162,6 +162,8 @@ tests:
             ${{- " or test_circle_model_estimate or test_circle_model_int_overflow or test_init_estimate_deprecations" -}}
             {#- Expects one deprecation warning but gets two with recent dependencies -#}
             ${{- " or test_deprecation_warnings_on_plugin_funcs" -}}
+            {#- https://github.com/scikit-image/scikit-image/issues/7348 - unstable: angle45 and angle135 swap on windows -#}
+            ${{- " or test_ellipse_parameter_stability" if win -}}
           )"
 
 about:
