@@ -100,59 +100,59 @@ tests:
       content:
         - |-
           pytest -vv --tb=long --color=yes -k "not ( _not_a_real_test
-            #{{- https://github.com/scikit-image/scikit-image/issues/4774 - test_end_points fails on ppc64le with python 3.6, 3.7, 3.8 #4774 -}}
+            {#- https://github.com/scikit-image/scikit-image/issues/4774 - test_end_points fails on ppc64le with python 3.6, 3.7, 3.8 #4774 -#}
             ${{- " or test_end_points" if ppc64le or aarch64 -}}
-            #{{- https://github.com/scikit-image/scikit-image/issues/4773 - test_RGB fails on ppc64le with python 3.7 #4773 -}}
+            {#- https://github.com/scikit-image/scikit-image/issues/4773 - test_RGB fails on ppc64le with python 3.7 #4773 -#}
             ${{- " or test_RGB" if ppc64le or aarch64 -}}
-            #{{- https://github.com/scikit-image/scikit-image/issues/4772 - test_periodic_reference fails on ppc64le python 3.7 (conda feedstock) #4772 -}}
+            {#- https://github.com/scikit-image/scikit-image/issues/4772 - test_periodic_reference fails on ppc64le python 3.7 (conda feedstock) #4772 -#}
             ${{- " or test_periodic_reference" if ppc64le or aarch64 -}}
-            #{{- https://github.com/scikit-image/scikit-image/issues/4775 - test_hdx_rgb_roundtrip fail son osx with python 3.8 #4775 -}}
+            {#- https://github.com/scikit-image/scikit-image/issues/4775 - test_hdx_rgb_roundtrip fail son osx with python 3.8 #4775 -#}
             ${{- " or test_hdx_rgb_roundtrip" if ppc64le or aarch64 or osx -}}
-            #{{- https://github.com/scikit-image/scikit-image/issues/4776 test_hed_rgb_roundtrip fails on osx with python3.8 and ppc64le with python 3.6 #4776 -}}
+            {#- https://github.com/scikit-image/scikit-image/issues/4776 test_hed_rgb_roundtrip fails on osx with python3.8 and ppc64le with python 3.6 #4776 -#}
             ${{- " or test_hed_rgb_roundtrip" if ppc64le or aarch64 or osx -}}
-            #{{- https://github.com/scikit-image/scikit-image/issues/4778 - test_hed_rgb_float_roundtrip fails on ppc64le python 3.8 #4778 -}}
+            {#- https://github.com/scikit-image/scikit-image/issues/4778 - test_hed_rgb_float_roundtrip fails on ppc64le python 3.8 #4778 -#}
             ${{- " or test_hed_rgb_float_roundtrip" if ppc64le -}}
-            #{{- https://github.com/scikit-image/scikit-image/issues/4781 - test_ellipse_rotated fails on python3.8 #4781 -}}
+            {#- https://github.com/scikit-image/scikit-image/issues/4781 - test_ellipse_rotated fails on python3.8 #4781 -#}
             ${{- " or test_ellipse_rotated" if ppc64le -}}
-            #{{- https://github.com/scikit-image/scikit-image/issues/4785 - test_fixed_reference fails on ppc64le with python 3.7 #4785 -}}
+            {#- https://github.com/scikit-image/scikit-image/issues/4785 - test_fixed_reference fails on ppc64le with python 3.7 #4785 -#}
             ${{- " or test_fixed_reference" if ppc64le -}}
-            #{{- https://github.com/scikit-image/scikit-image/issues/4782 - test_free_reference fails on ppc64le with python 3.6 #4782 -}}
+            {#- https://github.com/scikit-image/scikit-image/issues/4782 - test_free_reference fails on ppc64le with python 3.6 #4782 -#}
             ${{- " or test_free_reference" if ppc64le -}}
-            #{{- https://github.com/scikit-image/scikit-image/issues/4777 - test_uint16 fails on win #4777 -}}
+            {#- https://github.com/scikit-image/scikit-image/issues/4777 - test_uint16 fails on win #4777 -#}
             ${{- " or test_uint16" if win -}}
-            #{{- TODO: Report this upstream -}}
-            #{{- It seems that the apply_parallel tests can have relatively small errors on windows -}}
+            {#- TODO: Report this upstream -#}
+            {#- It seems that the apply_parallel tests can have relatively small errors on windows -#}
             ${{- " or test_apply_parallel_rgb" if win -}}
 
-            #{{- skip known failure on Windows PyPy builds -}}
+            {#- skip known failure on Windows PyPy builds -#}
             ${{- " or test_hough_ellipse_zero_angle or test_hough_ellipse_non_zero" if win and (python_impl == 'pypy') -}}
-            #{{- This used to be a known failure in Python 3.4 that resurfaced in PyPy3.7 -}}
-            #{{- https://github.com/conda-forge/scikit-image-feedstock/pull/91#issuecomment-1153888057 -}}
+            {#- This used to be a known failure in Python 3.4 that resurfaced in PyPy3.7 -#}
+            {#- https://github.com/conda-forge/scikit-image-feedstock/pull/91#issuecomment-1153888057 -#}
             ${{- " or test_wrap_around" if python_impl == 'pypy' -}}
-            #{{- uses get_sizeof which returns an error on pypy -}}
+            {#- uses get_sizeof which returns an error on pypy -#}
             ${{- " or test_dask_histogram" if python_impl == 'pypy' -}}
             ${{- " or test_apply_parallel_rgb_channel_axis" if python_impl == 'pypy' -}}
 
-            #{{- These seem to fail on pypy + linux_64 -}}
+            {#- These seem to fail on pypy + linux_64 -#}
             ${{- " or test_clear_border_non_binary_out" if python_impl == 'pypy' -}}
             ${{- " or test_clear_border_non_binary_out_3d" if python_impl == 'pypy' -}}
 
-            #{{- These seem to fail on cpython + linux_64 and seem generally flaky -}}
+            {#- These seem to fail on cpython + linux_64 and seem generally flaky -#}
             ${{- " or test_subpix_border" -}}
             ${{- " or test_max_tree" -}}
             ${{- " or test_offsets_to_raveled_neighbors_explicit_0" if python_impl in ('cpython', 'pypy') -}}
             ${{- " or test_offsets_to_raveled_neighbors_explicit_1" if python_impl in ('cpython', 'pypy') -}}
 
-            #{{- Performance based test, best left for upstream and not conda-forge packaging -}}
+            {#- Performance based test, best left for upstream and not conda-forge packaging -#}
             ${{- " or test_max_batch_size" -}}
 
-            #{{- Seems flaky but only on windows- hmaarrfk 2024/06 -}}
+            {#- Seems flaky but only on windows- hmaarrfk 2024/06 -#}
             ${{- " or test_polynomial_weighted_estimation" if win -}}
 
-            #{{- This tests fails with regex comparison on during the python314 migration, and this skip should likely be removed at the next version update -}}
+            {#- This tests fails with regex comparison on during the python314 migration, and this skip should likely be removed at the next version update -#}
             ${{- " or test_wrong_param_name" if match(python, "3.14.*") -}}
 
-            #{{- Downloading all from github just gets us banned. -}}
+            {#- Downloading all from github just gets us banned. -#}
             ${{- " or test_download_all_with_pooch" -}}
           )"
 
