@@ -1,9 +1,5 @@
 @echo on
 
-REM Do not write .pyc files of the host packages (pip, meson, pythran...) while
-REM building: they would be packaged as part of scikit-image (see #130).
-set "PYTHONDONTWRITEBYTECODE=1"
-
 REM Use clang for pythran support
 REM
 REM check if clang-cl is on path as required
