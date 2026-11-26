@@ -22,5 +22,7 @@ python:
 - 3.13.* *_cp313
 python_impl:
 - cpython
+python_min:
+- '3.11'
 target_platform:
 - win-64
